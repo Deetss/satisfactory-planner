@@ -15,7 +15,11 @@
  */
 
 import { create } from 'zustand'
-import { decodePlanCode, encodePlanCode } from './planCode'
+import {
+  decodePlanCode,
+  encodePlanCode,
+  MAX_PLAN_CODE_CHARS,
+} from './planCode'
 import { applyPlan, buildPlanFile, type ImportReport } from './planFile'
 import { normalizePlan } from './plannerStore'
 
@@ -24,6 +28,9 @@ const DEFLATED = '2z.'
 
 /** Past this many characters a link starts getting cut by chat clients. */
 export const LONG_LINK_CHARS = 8000
+
+/** 25 times the length at which chat clients already start cutting links. */
+export const MAX_FRAGMENT_CHARS = 200_000
 
 /** btoa can't take a spread of a large array, so feed it in chunks. */
 function toBase64Url(bytes: Uint8Array): string {
@@ -53,11 +60,39 @@ async function deflate(text: string): Promise<Uint8Array> {
   return new Uint8Array(await new Response(stream).arrayBuffer())
 }
 
-async function inflate(bytes: Uint8Array): Promise<string> {
-  const stream = new Blob([bytes as BlobPart])
+/**
+ * Inflates with a ceiling on the decoded text. A deflated fragment is the one
+ * input a stranger fully controls and a few hundred bytes of it can expand to
+ * millions of characters, so the text is read chunk by chunk and abandoned once
+ * it passes the bound, rather than decompressed whole and measured afterwards.
+ */
+export async function inflateBounded(
+  bytes: Uint8Array,
+  maxChars: number,
+): Promise<string> {
+  const reader = new Blob([bytes as BlobPart])
     .stream()
     .pipeThrough(new DecompressionStream('deflate-raw'))
-  return new Response(stream).text()
+    .pipeThrough(new TextDecoderStream())
+    .getReader()
+
+  const chunks: string[] = []
+  let total = 0
+
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+
+    total += value.length
+    if (total > maxChars) {
+      // Without this the stream keeps decompressing behind the throw.
+      await reader.cancel()
+      throw new Error('That link expands to more than the planner will open.')
+    }
+    chunks.push(value)
+  }
+
+  return chunks.join('')
 }
 
 /** The plain fragment for the current state, cheap enough to write on an edit. */
@@ -107,8 +142,15 @@ export const useShareStatus = create<{
 const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`
 
 async function readFragment(fragment: string): Promise<ImportReport> {
+  if (fragment.length > MAX_FRAGMENT_CHARS) {
+    throw new Error('That link is too long to open.')
+  }
+
   if (fragment.startsWith(DEFLATED)) {
-    const code = await inflate(fromBase64Url(fragment.slice(DEFLATED.length)))
+    const code = await inflateBounded(
+      fromBase64Url(fragment.slice(DEFLATED.length)),
+      MAX_PLAN_CODE_CHARS,
+    )
     return applyPlan(decodePlanCode(code))
   }
 

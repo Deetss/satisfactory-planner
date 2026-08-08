@@ -36,6 +36,13 @@ import type { Reserve } from '../layout/storage'
 /** Bump only for a change that older codes can't be read through. */
 export const PLAN_CODE_VERSION = 2
 
+/**
+ * A 24 block, three floor plan is about 1.3 kB of code, so this is roughly 750
+ * times the largest plan anyone has built. It bounds hostile input rather than
+ * limiting anything a user can reach.
+ */
+export const MAX_PLAN_CODE_CHARS = 1_000_000
+
 const SIDES: Side[] = ['north', 'east', 'south', 'west']
 const OBJECTIVES: PlannerSnapshot['objective'][] = [
   'resources',
@@ -323,12 +330,24 @@ const pick = <T>(list: T[], index: unknown, fallback: T): T =>
     : fallback
 
 /**
+ * An end the router was left to decide travels as an empty module slot. A slot
+ * holding something other than a string is a damaged link, and reads as that
+ * same open end rather than crashing the decoder.
+ */
+const endModule = (value: unknown, open: string) =>
+  typeof value === 'string' && value !== '' ? unpackModule(value) : open
+
+/**
  * Reads a code back into the save-file shape. Every field is treated as
  * untrusted, because a link is the one input a stranger controls: the planner
  * stores run their own normalizers over the result, and this only has to hand
  * them something of the right shape.
  */
 export function decodePlanCode(text: string): PlanFile {
+  if (text.length > MAX_PLAN_CODE_CHARS) {
+    throw new Error('That link is too large to open.')
+  }
+
   let parsed: unknown
   try {
     parsed = JSON.parse(text)
@@ -422,8 +441,8 @@ export function decodePlanCode(text: string): PlanFile {
   const routeOverrides: Record<string, RouteOverride> = {}
   for (const entry of Array.isArray(code.D) ? code.D : []) {
     if (typeof entry?.[2] !== 'string') continue
-    const from = entry[0] ? unpackModule(entry[0]) : 'in'
-    const to = entry[1] ? unpackModule(entry[1]) : 'out'
+    const from = endModule(entry[0], 'in')
+    const to = endModule(entry[1], 'out')
     const flat = Array.isArray(entry[7]) ? entry[7] : []
 
     const waypoints: { x: number; y: number }[] = []
@@ -448,8 +467,8 @@ export function decodePlanCode(text: string): PlanFile {
     if (typeof entry?.[4] !== 'string') continue
     const floor = floors[number(entry[1], 0)] ?? floors[0]
     if (!floor) continue
-    const from = entry[2] ? unpackModule(entry[2]) : 'in'
-    const to = entry[3] ? unpackModule(entry[3]) : 'out'
+    const from = endModule(entry[2], 'in')
+    const to = endModule(entry[3], 'out')
     fittings.push({
       // Rebuilt rather than carried: an id only has to be unique here.
       id: `fit-${index}`,

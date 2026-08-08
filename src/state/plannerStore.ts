@@ -91,7 +91,9 @@ export function normalizePlan(input: unknown): Persisted {
   }
 }
 
-function readStorage(): Partial<Persisted> | null {
+// Deliberately `unknown`: JSON.parse can return anything, and claiming a
+// Persisted shape here is what let a hand-edited blob past normalizePlan.
+function readStorage(): unknown {
   if (typeof window === 'undefined') return null
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY)
@@ -102,7 +104,7 @@ function readStorage(): Partial<Persisted> | null {
 }
 
 /** Whatever was last open in this browser; a link then wins over it. */
-const initial: Persisted = { ...DEFAULTS, ...readStorage() }
+const initial: Persisted = normalizePlan(readStorage())
 
 // The address bar is written by urlState, which is the only place that can see
 // the layout as well as the plan. This store keeps the local copy.

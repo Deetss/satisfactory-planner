@@ -11,7 +11,7 @@ import {
 } from './interpret'
 import { toLpFormat } from './lp'
 import { cleanRate } from './rates'
-import { buildModel, type PlanRequest } from './model'
+import { buildModel, unknownTargets, type PlanRequest } from './model'
 
 type Highs = Awaited<ReturnType<typeof highsLoader>>
 
@@ -135,14 +135,29 @@ export async function solveEvenResourceSplit(
 }
 
 /**
- * Works out why a plan is infeasible. Re-solves with every extraction ceiling
- * lifted: if that succeeds, the limits were the problem and the solved
+ * Works out why a plan is infeasible. An id the dataset doesn't carry is
+ * answered first and on its own. Otherwise it re-solves with every extraction
+ * ceiling lifted: if that succeeds, the limits were the problem and the solved
  * extraction rates are the minimum the target actually needs. If it still
  * fails, the recipe set can't reach the target at all.
  */
 export async function diagnoseInfeasible(
   request: PlanRequest,
 ): Promise<Diagnosis> {
+  const unrecognised = unknownTargets(request.targets)
+  if (unrecognised.length > 0) {
+    // Answering before loadSolver keeps a typo in a link from fetching the wasm.
+    return {
+      kind: 'unknown',
+      shortfalls: [],
+      message:
+        `This build doesn't recognise ${unrecognised.length} ` +
+        `${unrecognised.length === 1 ? 'item' : 'items'} in that plan: ` +
+        `${unrecognised.join(', ')}. The link may be damaged, or made ` +
+        'against a different version of the game.',
+    }
+  }
+
   const uncapped: Record<string, number> = {}
   for (const item of Object.keys(allResources)) {
     uncapped[item] = Number.POSITIVE_INFINITY

@@ -61,6 +61,17 @@ export interface BuiltModel {
 }
 
 /**
+ * Requested items the dataset has never heard of. An id it doesn't carry is a
+ * damaged link, not an impossible factory, and the two deserve different
+ * answers.
+ */
+export function unknownTargets(targets: Record<string, number>): string[] {
+  return Object.entries(targets)
+    .filter(([item, rate]) => rate > 0 && !Object.hasOwn(gameData.items, item))
+    .map(([item]) => item)
+}
+
+/**
  * Breaks ties between equally-optimal recipe mixes by mildly preferring fewer
  * machines. Without it the solver returns an arbitrary vertex and small input
  * changes make the whole plan reshuffle.

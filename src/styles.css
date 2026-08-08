@@ -1,0 +1,2215 @@
+:root {
+  --bg: #0d1218;
+  --panel: #151d27;
+  --panel-2: #1c2733;
+  /* One step brighter than panel-2, for hover on an already-raised control. */
+  --panel-3: #243140;
+  --border: #2a3846;
+  --border-strong: #3d5163;
+  /* Accent at low strength, for the surface of a selected control. */
+  --accent-dim: rgba(255, 159, 28, 0.13);
+  --text: #dde5ed;
+  --muted: #8fa0b0;
+  --accent: #ff9f1c;
+  --good: #4ea86a;
+  --warn: #d9a441;
+  --bad: #d1566b;
+  --tap: 44px;
+  /* Height of an ordinary control. Dense on a mouse, thumb-sized on touch. */
+  --control-h: 34px;
+  --radius: 5px;
+  --scroll-thumb: #2b3846;
+  --scroll-thumb-hover: #3a4c5e;
+
+  /* Tells the browser to render native scrollbars, form controls and focus
+     rings dark, instead of the default light ones that glare on this palette. */
+  color-scheme: dark;
+  /* Checkboxes and the tier slider are native controls; this is all it takes to
+     pull them into the palette instead of leaving them browser blue. */
+  accent-color: var(--accent);
+}
+
+/* A finger needs a bigger target than a cursor does, and this is the one knob
+   that changes every control at once. */
+@media (pointer: coarse) {
+  :root {
+    --control-h: var(--tap);
+  }
+}
+
+/* Keyboard users need to see where they are; a mouse click shouldn't ring. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+
+/* Standard properties: Firefox and current Chrome/Edge. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+
+/* WebKit/Blink needs its own pseudo-elements for the same effect. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 6px;
+  /* Inset the thumb so it reads as a slim bar rather than a hard-edged block. */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.app__title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.app__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.app__panel {
+  display: none;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+.app__panel--active {
+  display: block;
+}
+
+.app__panel--graph.app__panel--active,
+.app__panel--layout.app__panel--active {
+  display: flex;
+  overflow: hidden;
+}
+
+/* Bottom tab bar: the primary navigation on a phone. */
+.tabs {
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabs__tab {
+  flex: 1;
+  min-height: var(--tap);
+  background: none;
+  border: none;
+  border-top: 2px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.tabs__tab--active {
+  color: var(--accent);
+  border-top-color: var(--accent);
+  background: var(--panel-2);
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.chip {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.chip--warn {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.chip--bad {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+
+/* Outcome of opening a shared link, across the full width so it can't be missed. */
+.banner {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  font-size: 12px;
+  background: #16281d;
+  border-bottom: 1px solid var(--flow-out);
+}
+
+.banner--bad {
+  background: #2a1a1a;
+  border-bottom-color: var(--bad);
+  color: var(--bad);
+}
+
+.banner__close {
+  margin-left: auto;
+  flex: none;
+  width: var(--tap);
+  height: 24px;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.banner__close:hover {
+  opacity: 1;
+}
+
+.section {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 14px 16px;
+}
+
+/* Collapsible setup panels */
+.panel {
+  border-bottom: 1px solid var(--border);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 10px 14px;
+  cursor: pointer;
+  /* Replaces the default triangle with a chevron drawn below. */
+  list-style: none;
+  user-select: none;
+}
+
+.panel__head::-webkit-details-marker {
+  display: none;
+}
+
+.panel__head::after {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform 0.12s ease;
+}
+
+.panel[open] > .panel__head::after {
+  transform: rotate(-135deg);
+}
+
+.panel__head:hover {
+  background: var(--panel-2);
+}
+
+.panel__title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.panel__summary {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel__body {
+  padding: 4px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel__note {
+  margin: 0;
+  font-size: 12px;
+}
+
+.panel__footer {
+  /* Extra bottom room so the last control clears the tab bar when scrolled. */
+  padding: 14px 14px 32px;
+}
+
+/* Outcome of an action the user just took, e.g. importing a file. */
+.note {
+  margin: 0;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  border-left: 2px solid transparent;
+}
+
+.note--ok {
+  border-left-color: var(--flow-out);
+  background: #16281d;
+}
+
+.note--bad {
+  border-left-color: var(--bad);
+  background: #2a1a1a;
+}
+
+/* Right-click menu. Fixed, so nothing that scrolls or zooms can drag it away. */
+.menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 190px;
+  padding: 4px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+}
+
+.menu__title {
+  padding: 5px 9px 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 4px 9px;
+  border: none;
+  border-radius: 3px;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu__item:hover:not(:disabled) {
+  background: var(--panel-3);
+}
+
+.menu__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.menu__item--danger {
+  color: var(--bad);
+}
+
+.menu__hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.menu__rule {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--border);
+}
+
+/* A splitter or merger the player has decided on, sitting on its run. */
+.fitting {
+  position: absolute;
+  z-index: 4;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  padding: 0;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: auto;
+  cursor: context-menu;
+}
+
+.fitting--merger {
+  border-color: var(--flow-in);
+  color: var(--flow-in);
+}
+
+/* Worked out from the runs rather than placed, so it marks the junction without
+   claiming to be a decision you made, and never takes the pointer. */
+.fitting--derived {
+  z-index: 3;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-style: dashed;
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/**
+ * Compass. Pinned to the viewport corner rather than the canvas, so it stays put
+ * while the plan scrolls under it, and never intercepts a drag.
+ *
+ * Dropped below the very corner, which is where a floor's own grab handle sits:
+ * pinning both to the same spot puts the compass on top of the handle whenever
+ * the deck is scrolled to the corner. Sticking to the right instead doesn't
+ * work, since a float there sits at the far edge of a canvas wider than the
+ * viewport and scrolls away with it.
+ */
+.compass {
+  position: sticky;
+  top: 34px;
+  left: 8px;
+  z-index: 6;
+  float: left;
+  width: 46px;
+  height: 46px;
+  /* Out of the flow entirely, so it can't shift the surface it sits over. */
+  margin: 0 -46px -46px 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  pointer-events: none;
+}
+
+.compass__dial {
+  width: 100%;
+  height: 100%;
+}
+
+.compass__mark {
+  fill: var(--muted);
+  font-size: 6.5px;
+  font-family: inherit;
+}
+
+.compass__mark--n {
+  fill: var(--accent);
+  font-weight: 600;
+}
+
+.compass__needle {
+  fill: var(--accent);
+  opacity: 0.75;
+}
+
+.compass__pin {
+  fill: var(--muted);
+}
+
+/**
+ * Drawing a run by hand.
+ *
+ * The svg is inside `.floor__content`, which passes clicks through, so only
+ * these opt back in. The hit strip is wide and invisible: a belt is a few pixels
+ * of dashed line, which is far too little to aim at.
+ */
+.route__hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.route__group--editing .route {
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+
+.route__handles circle,
+.route__handles rect {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+/* A corner nobody has placed yet: faint until it's worth reaching for. */
+.route__add {
+  fill: var(--panel);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  opacity: 0.45;
+}
+
+.route__add:hover {
+  opacity: 1;
+}
+
+.route__corner {
+  fill: var(--accent);
+  stroke: #14202b;
+  stroke-width: 1.5;
+}
+
+.route__end {
+  stroke: #14202b;
+  stroke-width: 1.5;
+}
+
+.route__end--from {
+  fill: var(--flow-out);
+}
+
+.route__end--to {
+  fill: var(--flow-in);
+}
+
+/* Blocked lifts and what to do about them. */
+.fixes {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--warn);
+  border-radius: 3px;
+  background: var(--panel-2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fixes__title {
+  font-size: 12px;
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.fixes__why {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.fixes__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.fixes__what {
+  font-size: 12px;
+}
+
+/* What kind of problem this is, so a list of suggestions can be skimmed for the
+   ones worth acting on rather than read line by line. */
+.fixes__kind {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* A block on the wrong floor is the one that deletes lifts rather than moving
+   them, so it's the only kind coloured as an opportunity. */
+.fixes__kind--floor {
+  color: var(--good);
+}
+
+.fixes__kind--blocked {
+  color: var(--bad);
+}
+
+.fixes__kind--skip,
+.fixes__kind--tangle {
+  color: var(--warn);
+}
+
+/* The floor a problem is on, when it isn't the one you're looking at. */
+.fixes__where {
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.fixes__where:hover {
+  text-decoration: underline;
+}
+
+.fixes__tips {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* A cross-floor link the player carries: still listed, visibly not built. */
+.is-manual td {
+  opacity: 0.62;
+}
+
+.note--warn {
+  border-left-color: var(--warn);
+  background: #2a2416;
+}
+
+/* Target rows: name above its controls, so nothing is cramped on a phone. */
+.produce {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.produce__name {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.produce__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unit {
+  flex: none;
+  font-size: 12px;
+  min-width: 44px;
+}
+
+/* Icons imported from the local game install; absent by default. */
+.icon {
+  flex: none;
+  object-fit: contain;
+  vertical-align: middle;
+  image-rendering: auto;
+}
+
+/**
+ * A faint plate under the art, on dark surfaces only.
+ *
+ * Two reasons: the game's icons are dark metal on transparency and nearly
+ * vanish against a dark panel, and a column that mixes real icons with initials
+ * fallbacks looks ragged when only half of them sit in a box. Left off the
+ * layout tiles and graph nodes, whose backgrounds are already light enough.
+ */
+.table img.icon,
+.row img.icon,
+.produce__name img.icon,
+.picker__result img.icon,
+.checklist__item img.icon,
+.toggle img.icon {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px;
+}
+
+/* Colour and initials come from the name, set inline by the Icon component. */
+.icon--fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  /* The tint is already a hint; a full-strength border would shout. */
+  border-color: color-mix(in srgb, currentcolor 35%, transparent);
+}
+
+/* Icon plus text on one baseline, inside a table cell or label. */
+.cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.produce__name,
+.picker__result,
+.fnode__title,
+.tile__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Checkbox plus label, with room to tap. */
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  margin-top: 2px;
+}
+
+.toggle small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.section__title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row + .row {
+  margin-top: 6px;
+}
+
+.row__grow {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.input,
+.select {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  min-height: var(--control-h);
+  width: 100%;
+  /* 16px stops iOS Safari zooming the page on focus. */
+  font-size: 16px;
+  transition:
+    border-color 0.12s ease,
+    background-color 0.12s ease;
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--border-strong);
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* Editable numbers are read by comparing them down a column, so they line up
+   on the right and use tabular figures. */
+.input--count,
+.input--rate {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.input--count {
+  width: 64px;
+  padding: 4px 8px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.input--rate {
+  width: 92px;
+}
+
+.btn--reset {
+  min-height: 26px;
+  min-width: 26px;
+  padding: 0 5px;
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: var(--control-h);
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 0.12s ease,
+    background-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--panel-3);
+  border-color: var(--border-strong);
+}
+
+.btn:active:not(:disabled) {
+  /* A press should register even when the click does nothing yet. */
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--icon {
+  min-width: var(--control-h);
+  padding: 4px 8px;
+}
+
+/* Sits inside a table row, so it can't claim the full control height. */
+.btn--tiny {
+  min-height: 0;
+  padding: 2px 7px;
+  font-size: 11px;
+}
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14202b;
+  font-weight: 600;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #ffb247;
+  border-color: #ffb247;
+}
+
+.btn--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.btn--active:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* Destructive, but not shouting: red text now, red surface only on hover, so a
+   row of buttons doesn't read as a row of warnings. */
+.btn--danger {
+  color: var(--bad);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bad) 16%, transparent);
+  border-color: var(--bad);
+  color: #ffd9df;
+}
+
+.btngroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/**
+ * Segmented control: one choice out of a few, joined into a single object so it
+ * reads as one control rather than N buttons. Fills its row evenly, which stops
+ * three options wrapping to 2 + 1.
+ */
+.segmented {
+  display: flex;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  overflow: hidden;
+}
+
+.segmented__option {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: var(--control-h);
+  padding: 4px 8px;
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.segmented__option:first-child {
+  border-left: 0;
+}
+
+.segmented__option:hover:not(.segmented__option--active) {
+  background: var(--panel-3);
+  color: var(--text);
+}
+
+.segmented__option--active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.picker {
+  position: relative;
+}
+
+.picker__results {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel-2);
+  max-height: 260px;
+  overflow: auto;
+}
+
+.picker__result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  min-height: var(--tap);
+  padding: 8px;
+  cursor: pointer;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.warn {
+  color: var(--warn);
+}
+
+.bad {
+  color: var(--bad);
+}
+
+.table {
+  width: 100%;
+  /* Stretched to 1100px, a five-word column sits in a sea of gap and the eye
+     loses the row. Reading width beats filling the pane. */
+  max-width: 820px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.table th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  /* The header stays put while a long machine list scrolls under it. */
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+}
+
+.table td.num,
+.table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Numbers a row is really about, e.g. how many of a building to place. */
+.table td.num--lead {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.checklist {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.checklist__item input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.graph-empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--muted);
+  padding: 24px;
+  text-align: center;
+}
+
+/* React Flow node */
+.fnode {
+  width: 200px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+.fnode--recipe {
+  border-left-color: #3f8fb5;
+}
+.fnode--extract {
+  border-left-color: #b58f4f;
+}
+.fnode--generator {
+  border-left-color: #d97b34;
+}
+.fnode--target {
+  border-left-color: var(--good);
+}
+.fnode--surplus {
+  border-left-color: var(--bad);
+}
+.fnode--hub {
+  border-left-color: #7a8694;
+  border-style: dashed;
+  background: #161e27;
+}
+
+/* React Flow ships light-theme chrome; these are its own class names. */
+.react-flow__controls {
+  box-shadow: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+  fill: var(--muted);
+  width: 26px;
+  height: 26px;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--panel-3);
+  fill: var(--text);
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: 0;
+}
+
+.react-flow__minimap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.react-flow__attribution {
+  display: none;
+}
+
+.fnode__title {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.fnode__subtitle {
+  color: var(--muted);
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+
+.fnode__detail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fnode__detail li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fnode__power {
+  color: var(--warn);
+  margin-top: 3px;
+}
+
+/* Layout editor */
+.layout-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* A flex item defaults to min-width:auto, which lets a wide floor stretch
+     this past the viewport instead of scrolling inside it. The right-hand part
+     of the floor then sits under app__panel's overflow clip, unreachable. */
+  min-width: 0;
+  flex: 1;
+}
+
+/*
+ * The controls. Stacked under the floor on a phone, beside it on a wide screen.
+ *
+ * On a phone the two are fighting for the same pixels, and the floor is what
+ * you came to look at, so the controls collapse to their handle and give the
+ * rest back. The scrolling moved to an inner element so the handle can stay put
+ * while the controls scroll under it.
+ */
+.layout-panel__side {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  max-height: 55%;
+  min-height: 0;
+  flex: none;
+}
+
+.layout-panel__scroll {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+.layout-panel__side--shut .layout-panel__scroll {
+  display: none;
+}
+
+/* The handle: the whole strip is the target, which is what a thumb wants. */
+.sheet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 0 10px;
+  border: 0;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheet:hover {
+  background: var(--panel-2);
+}
+
+.sheet__label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 11px;
+  /* It carries the selected block's name, which can be long. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Pushes the chevron to the far end, so the badges sit with the label. */
+.sheet__chevron {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+/* The grabbable-looking bar, purely so the strip reads as a sheet you can pull. */
+.sheet__grip {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  flex: none;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  flex: 1;
+}
+
+.layout__toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  align-items: center;
+  /* Swipe the toolbar on a phone rather than squeezing every control until the
+     buttons wrap into two lines. */
+  overflow-x: auto;
+  /* A 10px scrollbar under a toolbar is a lot of a phone's height to spend, so
+     the overflow is signalled by fading the trailing edge instead. */
+  scrollbar-width: none;
+  mask-image: linear-gradient(to left, transparent, #000 24px);
+}
+
+.layout__toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Controls keep their size; only the floor picker gives up room. */
+.layout__toolbar > * {
+  flex-shrink: 0;
+}
+
+.layout__toolbar .btngroup {
+  flex-wrap: nowrap;
+}
+
+/* Grows to fit the longest floor name, but no further: the toolbar reads as a
+   row of controls, and one that swallows the leftover space reads as a gap. */
+.layout__floorpick {
+  flex: 0 1 auto;
+  min-width: 8ch;
+  max-width: 22ch;
+}
+
+.layout__scroll {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #0a0f14;
+  /* Room for runs that leave the floor edge; without it they scroll out of
+     sight and look like they vanish. */
+  padding: 44px;
+  /* One-finger pan stays native; pinch is ours, so the browser mustn't take it
+     to zoom the whole page. */
+  touch-action: pan-x pan-y;
+  cursor: grab;
+}
+
+/* While dragging the background to pan. */
+.layout__scroll.is-panning {
+  cursor: grabbing;
+  /* Stops text and labels being selected mid-pan. */
+  user-select: none;
+}
+
+/* The whole site: bare ground, with each floor's deck drawn on top of it. */
+.layout__surface {
+  position: relative;
+  background: #0b1116;
+  /* The surface covers the whole canvas, so every touch inside it lands here
+     first. Blocking panning on it blocked panning everywhere, which left no way
+     to move around the floor on a phone at all. Dragging is blocked on the
+     things you can actually drag, which is the tile and the floor handle. */
+  touch-action: pan-x pan-y;
+}
+
+/* The ground itself, inset inside the surface so labels and stubs that hang off
+   an edge have somewhere to be. */
+.layout__site {
+  position: absolute;
+}
+
+/* A floor below the one being edited. Shows what the active floor is built
+   over, and where it stops. */
+.deck {
+  position: absolute;
+  border: 1px solid #223442;
+  background: #0f161d;
+}
+
+.deck__label {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 10px;
+  color: #47606f;
+  white-space: nowrap;
+}
+
+/**
+ * The floor being edited, carrying the 8 m foundation grid.
+ *
+ * Backdrop only. Blocks from the floors below are drawn over it so they still
+ * read through as shadows, which an opaque deck would hide.
+ */
+.floor {
+  position: absolute;
+  z-index: 1;
+  background-color: #101820;
+  /* Foundation edges. Bright enough to count against the deck, since they are
+     what a block actually lands on. */
+  background-image:
+    linear-gradient(to right, #24354a 1px, transparent 1px),
+    linear-gradient(to bottom, #24354a 1px, transparent 1px);
+  background-position: 0 0;
+  border: 1px solid var(--border-strong);
+  /* The deck is a backdrop, not a handle: it's moved by its own grab button. */
+  touch-action: pan-x pan-y;
+}
+
+/* Half- and quarter-foundation guides, fainter than the foundation lines. */
+/**
+ * Half and quarter foundation lines, shown when the snap step is finer than a
+ * foundation.
+ *
+ * They sit between the deck and the foundation edges in brightness: dim enough
+ * to stay subordinate, but clear of the background. They used to be #16202a
+ * against a #101820 deck, six levels apart, which drew a grid nobody could see
+ * and made the snap control look like it did nothing.
+ */
+.floor[data-subgrid='on'] {
+  background-image:
+    linear-gradient(to right, #24354a 1px, transparent 1px),
+    linear-gradient(to bottom, #24354a 1px, transparent 1px),
+    linear-gradient(to right, #1a2836 1px, transparent 1px),
+    linear-gradient(to bottom, #1a2836 1px, transparent 1px);
+}
+
+.floor--moving {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Shadows of the floors below, above the deck but under the active blocks. */
+.tile--ghost {
+  z-index: 2;
+}
+
+/**
+ * The active floor's own contents. A separate layer from the deck so blocks can
+ * stack above the shadows: children of the deck would be trapped in its
+ * stacking context and could never rise past them.
+ */
+.floor__content {
+  position: absolute;
+  z-index: 3;
+  /* Clicks fall through the empty parts to the deck, which clears the
+     selection. Children opt back in. */
+  pointer-events: none;
+}
+
+.floor__content .tile,
+.floor__content .shaft,
+.floor__content .floor__grab {
+  pointer-events: auto;
+}
+
+/**
+ * Grab handle for moving the whole floor over the base.
+ *
+ * It has to sit above the blocks to stay catchable in a corner one of them
+ * covers, which means it's the one thing that can't be tucked behind the
+ * layout. So it stays faint and glyph-only until reached for: a control you
+ * touch occasionally shouldn't compete with the factory for attention.
+ */
+.floor__grab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 0 0 var(--radius) 0;
+  background: var(--panel-2);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.5;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity 0.12s ease;
+}
+
+.floor__grab:hover,
+.floor__grab:focus-visible,
+.floor__grab:active {
+  opacity: 1;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (pointer: coarse) {
+  /* No hover to reveal it, and a fingertip needs the room. */
+  .floor__grab {
+    min-width: var(--tap);
+    min-height: var(--tap);
+    opacity: 0.75;
+  }
+}
+
+.floor__grab:active {
+  cursor: grabbing;
+  background: #3a2b14;
+}
+
+/* Foundation with nothing beneath it: in game it needs pillars, and it marks
+   where a floor has drifted off the base it was meant to sit on. */
+.cantilever {
+  position: absolute;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(209, 86, 107, 0.16),
+    rgba(209, 86, 107, 0.16) 4px,
+    transparent 4px,
+    transparent 9px
+  );
+  box-shadow: inset 0 0 0 1px rgba(209, 86, 107, 0.3);
+}
+
+/* Belt and pipe runs, drawn under the blocks. */
+.routes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Flow colours follow the game's convention: orange feeds in, green ships out.
+   Each run is drawn in two halves, green at the output end to orange at the
+   input end, so the colour follows the path rather than the straight line
+   between its ends. */
+:root {
+  --flow-in: #ff9f1c;
+  --flow-out: #4ea86a;
+}
+
+.route {
+  fill: none;
+  stroke: #4d6b85;
+  stroke-linejoin: round;
+  stroke-linecap: butt;
+  opacity: 0.9;
+}
+
+.route--out {
+  stroke: var(--flow-out);
+}
+
+.route--in {
+  stroke: var(--flow-in);
+}
+
+.route--split {
+  stroke: var(--warn);
+}
+
+.route--blocked {
+  stroke: var(--bad);
+}
+
+.route--external {
+  opacity: 0.55;
+}
+
+/**
+ * What a run leaving the floor connects to, listed against the face it leaves
+ * by. Never takes the pointer: these sit over the deck around a block, which is
+ * exactly where you drag and pan.
+ */
+.port {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: rgba(21, 29, 39, 0.92);
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Anchored on the outer end of the stubs, so the panel hangs off the face
+   rather than sitting across it. */
+.port--north {
+  transform: translate(-50%, -100%);
+  margin-top: -3px;
+}
+
+.port--south {
+  transform: translate(-50%, 0);
+  margin-top: 3px;
+}
+
+.port--west {
+  transform: translate(-100%, -50%);
+  margin-left: -3px;
+}
+
+.port--east {
+  transform: translate(0, -50%);
+  margin-left: 3px;
+}
+
+.port__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.port__row--in {
+  color: var(--flow-in);
+}
+
+.port__row--out {
+  color: var(--flow-out);
+}
+
+.port__rate {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.port__name {
+  color: var(--text);
+}
+
+.port__where {
+  color: var(--muted);
+}
+
+/* Each half carries an arrowhead on its own longest straight segment, matching
+   that half's colour. */
+.route__arrow {
+  stroke: none;
+}
+
+.route__arrow--out {
+  fill: var(--flow-out);
+}
+
+.route__arrow--in {
+  fill: var(--flow-in);
+}
+
+.route__arrow--split {
+  fill: var(--warn);
+}
+
+.route__arrow--blocked {
+  fill: var(--bad);
+}
+
+/* Side elevation: floors stacked, depth collapsed away. */
+.elevation {
+  display: block;
+}
+
+.elevation__deck {
+  fill: #2c3a47;
+}
+
+/* Invisible band around a deck, so a 1 m foundation is still easy to grab with
+   a finger. The deck itself stays thin to scale. */
+.elevation__grab {
+  fill: transparent;
+}
+
+.elevation__floorgroup--draggable {
+  cursor: ns-resize;
+  /* Raising a floor is a vertical drag and so is scrolling, so the deck has to
+     claim the gesture or a finger on it just pans the elevation instead. */
+  touch-action: none;
+}
+
+.elevation__floorgroup--draggable:hover .elevation__deck {
+  fill: #3d5163;
+}
+
+.elevation__floorgroup--rising .elevation__deck {
+  fill: var(--accent);
+}
+
+.elevation__floorgroup--rising .elevation__rule {
+  stroke: var(--accent);
+}
+
+.elevation__deck--active {
+  fill: #3f7fa5;
+}
+
+.elevation__rule {
+  stroke: #1e2a36;
+  stroke-width: 1;
+}
+
+.elevation__floor {
+  fill: var(--text);
+  font-size: 11px;
+}
+
+.elevation__height {
+  fill: var(--muted);
+  font-size: 9px;
+}
+
+.elevation__tangle {
+  fill: var(--warn);
+  font-size: 9px;
+}
+
+/* Qualified by the block, which otherwise wins on specificity for fill. */
+.elevation__block text.elevation__blocksub {
+  fill: var(--muted);
+  font-size: 9px;
+}
+
+.elevation__block rect {
+  fill: #24425a;
+  stroke: #3f7fa5;
+  stroke-width: 1;
+  cursor: pointer;
+}
+
+.elevation__block text {
+  fill: var(--text);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+/* Blocks on other floors stay visible but recede, so the active floor reads. */
+.elevation__block--other rect {
+  opacity: 0.4;
+}
+
+.elevation__block--other text {
+  opacity: 0.5;
+}
+
+.elevation__block--selected rect {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+/* Taller than the storey it sits in: the floor above would clip it. */
+.elevation__block--tall rect {
+  fill: #4a2a22;
+  stroke: var(--bad);
+}
+
+.elevation__riser line,
+.elevation__riser polyline {
+  stroke: var(--flow-in);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.elevation__riser polygon {
+  fill: var(--flow-in);
+}
+
+.elevation__riserline {
+  fill: none;
+}
+
+/* This lift can't be built where it is: something's in the column. */
+/* Carried by the player, so nothing is built: faint and finely dotted, reading
+   as an intention rather than a structure. Declared before --fouled so a
+   blocked lift still wins on colour, though the two can't both apply. */
+.elevation__riser--manual line,
+.elevation__riser--manual polyline {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 1 4;
+}
+
+.elevation__riser--manual polygon {
+  fill: var(--muted);
+}
+
+.elevation__risermark {
+  fill: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.elevation__riser--fouled line,
+.elevation__riser--fouled polyline {
+  stroke: var(--bad);
+  stroke-dasharray: none;
+  stroke-width: 3;
+}
+
+.elevation__riser--fouled polygon {
+  fill: var(--bad);
+}
+
+/* The corridor a bus arrangement keeps clear for belts and pipes. */
+.bus {
+  position: absolute;
+  border: 1px dashed #46626f;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(78, 168, 106, 0.07),
+    rgba(78, 168, 106, 0.07) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  pointer-events: none;
+}
+
+.bus__label {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6d8b98;
+}
+
+/* Arrangement strategy picker, above the arrange button. */
+.arrange {
+  margin-top: 10px;
+}
+
+/* A lift column, drawn on every floor it passes through. */
+.shaft {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--flow-in);
+  border-radius: 50%;
+  background: #2a1f10;
+  color: var(--flow-in);
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+/* Neither end is on this floor: it only passes through, which is exactly the
+   thing you can't see from a plan view. */
+.shaft--through {
+  border-style: dashed;
+}
+
+.shaft--fouled {
+  border-color: var(--bad);
+  background: var(--bad);
+  color: #10161c;
+}
+
+.elevation__legend {
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+
+/* Where two runs pass over each other. */
+.crossing circle {
+  fill: #1a2129;
+  stroke: var(--bad);
+  stroke-width: 1.5;
+}
+
+.crossing path {
+  stroke: var(--bad);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+/* Someone else's belt runs over this block. */
+.tile--crossed {
+  outline: 1px dashed var(--warn);
+  outline-offset: -3px;
+}
+
+/**
+ * The clear ground arranging keeps around a block for its manifold, the belt
+ * leaving it, and somewhere to stand. Drawn faintly, because it isn't a thing
+ * you build, but drawn: "is the space actually there" shouldn't need measuring.
+ */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--lane, 0px));
+  border: 1px dashed rgba(143, 160, 176, 0.22);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* A shadow of a floor below isn't being arranged, so its lane means nothing. */
+.tile--ghost::before {
+  display: none;
+}
+
+/* Material runs, as a list. Each entry is one belt or pipe to build. */
+.runs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.run {
+  display: flex;
+  gap: 8px;
+  padding: 7px 0;
+  border-top: 1px solid var(--border);
+}
+
+.run__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.run__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.run__item {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.run__rate {
+  flex: none;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.run__path,
+.run__carry {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.run__path {
+  color: var(--muted);
+}
+
+.tangle {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.tangle__floor {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0 0 4px;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tangle__floor--active {
+  color: var(--accent);
+}
+
+.tangle__heading {
+  display: block;
+  font-size: 13px;
+  padding-bottom: 4px;
+}
+
+.tangle__ok,
+.tangle__list {
+  margin: 0;
+  font-size: 12px;
+}
+
+.tangle__ok {
+  color: var(--muted);
+}
+
+.tangle__list {
+  padding-left: 16px;
+}
+
+.tangle__list li {
+  margin-bottom: 2px;
+}
+
+.tangle__bad {
+  color: var(--bad);
+}
+
+.tangle__warn {
+  color: var(--warn);
+}
+
+.tile {
+  position: absolute;
+  background: #24425a;
+  border: 1px solid #3f7fa5;
+  border-radius: 2px;
+  overflow: hidden;
+  padding: 2px 4px;
+  font-size: 10px;
+  line-height: 1.25;
+  cursor: grab;
+  touch-action: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tile--generator {
+  background: #5a3c22;
+  border-color: #a56a3f;
+}
+
+.tile--storage {
+  background: #2f4a3a;
+  border-color: #4e8060;
+}
+
+.tile--ghost {
+  background: #161f28;
+  border: 1px dashed #2c3c4c;
+  color: #4d6070;
+  cursor: default;
+  pointer-events: none;
+}
+
+.tile--selected {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.tile--outside {
+  outline: 1px dashed var(--warn);
+  outline-offset: -1px;
+  opacity: 0.75;
+}
+
+.tile__flow {
+  margin-left: 4px;
+  letter-spacing: 1px;
+}
+
+.tile__flow--in {
+  color: var(--flow-in);
+}
+
+.tile__flow--out {
+  color: var(--flow-out);
+}
+
+.flow-in {
+  color: var(--flow-in);
+}
+
+.flow-out {
+  color: var(--flow-out);
+}
+
+/* A labelled cluster of small inputs sitting inline in a toolbar. */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 0 4px 0 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: var(--control-h);
+  background: var(--panel-2);
+}
+
+.field__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.field__sep {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Sits inside a .field, so it drops its own frame. */
+.input--tiny {
+  width: 46px;
+  min-height: calc(var(--control-h) - 8px);
+  padding: 2px 4px;
+  text-align: center;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  border-color: transparent;
+  background: var(--panel-3);
+}
+
+/* Separates clusters of related toolbar controls. */
+.toolbar__divider {
+  flex: none;
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 2px;
+  background: var(--border);
+}
+
+/* Joined pair, e.g. zoom out and in, so they read as one control. */
+.btngroup--joined {
+  gap: 0;
+}
+
+.btngroup--joined .btn {
+  border-radius: 0;
+}
+
+.btngroup--joined .btn:first-child {
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.btngroup--joined .btn:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-left: -1px;
+}
+
+/* The name of a toolbar toggle, dimmer than the value it carries. */
+.btn__key {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn--active .btn__key {
+  color: color-mix(in srgb, var(--accent) 70%, var(--muted));
+}
+
+/* A count riding on a control, e.g. how many problems a toggle is showing. */
+.badge {
+  min-width: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--panel-3);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 17px;
+  text-align: center;
+}
+
+.badge--warn {
+  background: var(--warn);
+  color: #1a1305;
+}
+
+.tile--clash {
+  background: #5a2430;
+  border-color: var(--bad);
+}
+
+.tile--dragging {
+  opacity: 0.8;
+  cursor: grabbing;
+}
+
+.tile__label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tile__sub,
+.tile__size {
+  color: #9fb4c6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 900px) {
+  .layout-panel {
+    flex-direction: row;
+  }
+
+  .layout-panel__side {
+    border-top: none;
+    border-left: 1px solid var(--border);
+    width: 320px;
+    max-height: none;
+  }
+
+  /* There's room for both here, so the controls are always up and the handle
+     that collapses them has nothing to do. */
+  .sheet {
+    display: none;
+  }
+
+  .layout-panel__side--shut .layout-panel__scroll {
+    display: block;
+  }
+}
+
+@media (min-width: 900px) {
+  .app__body {
+    flex-direction: row;
+  }
+
+  /* The setup panel is permanent on desktop; tabs only switch the main view. */
+  .app__panel--setup {
+    display: block;
+    flex: none;
+    width: 340px;
+    border-right: 1px solid var(--border);
+  }
+
+  .tabs__tab--setup {
+    display: none;
+  }
+}

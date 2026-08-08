@@ -34,13 +34,6 @@ export const SIDE_LABEL: Record<Side, string> = {
   south: '↓',
 }
 
-export const OPPOSITE: Record<Side, Side> = {
-  west: 'east',
-  east: 'west',
-  north: 'south',
-  south: 'north',
-}
-
 export interface ModulePort {
   item: string
   /** Items or m3 per minute across the whole module. */

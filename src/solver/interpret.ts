@@ -137,8 +137,11 @@ export function interpretSolution(
   const netRates: Record<string, number> = {}
   const buildingCounts: Record<string, number> = {}
 
+  // Contributions arrive already cleaned, because cleanRate's tolerance is
+  // relative: 36 * 4.16667 is recoverable at magnitude 150 but the same error
+  // is invisible once contributions cancel down to magnitude 1.
   const addNet = (item: string, rate: number) => {
-    netRates[item] = cleanRate((netRates[item] ?? 0) + rate)
+    netRates[item] = (netRates[item] ?? 0) + rate
   }
 
   for (const [id, meta] of registry.entries()) {
@@ -166,7 +169,7 @@ export function interpretSolution(
       // meet; clockValid already marks the row as unreachable.
       const shardsEach = Math.min(shardsNeeded, MAX_SHARDS)
 
-      machineGroups.push({
+      const group: MachineGroup = {
         recipe: recipe.className,
         recipeName: recipe.name,
         building: recipe.building,
@@ -193,20 +196,21 @@ export function interpretSolution(
           item: p.item,
           rate: cleanRate(p.rate * value),
         })),
-      })
+      }
+      machineGroups.push(group)
 
       // Keyed by class rather than name so the UI can reach the icon.
       buildingCounts[building.className] =
         (buildingCounts[building.className] ?? 0) + wholeMachines
 
-      for (const p of recipe.products) addNet(p.item, p.rate * value)
-      for (const i of recipe.ingredients) addNet(i.item, -i.rate * value)
+      for (const p of group.outputs) addNet(p.item, p.rate)
+      for (const i of group.inputs) addNet(i.item, -i.rate)
     } else if (meta.kind === 'generator') {
       const gen = allGenerators[meta.generator]
       const fuel = gen.fuels.find((f) => f.item === meta.fuel)
       if (!fuel) continue
 
-      generatorGroups.push({
+      const generatorGroup: GeneratorGroup = {
         generator: gen.className,
         generatorName: gen.name,
         fuel: meta.fuel,
@@ -215,14 +219,15 @@ export function interpretSolution(
         power: gen.power * value,
         fuelRate: cleanRate(fuel.rate * value),
         waterRate: gen.supplemental ? cleanRate(gen.supplemental.rate * value) : 0,
-      })
+      }
+      generatorGroups.push(generatorGroup)
 
-      addNet(meta.fuel, -fuel.rate * value)
+      addNet(meta.fuel, -generatorGroup.fuelRate)
       if (gen.supplemental) {
-        addNet(gen.supplemental.item, -gen.supplemental.rate * value)
+        addNet(gen.supplemental.item, -generatorGroup.waterRate)
       }
       if (fuel.byproduct) {
-        addNet(fuel.byproduct.item, fuel.byproduct.rate * value)
+        addNet(fuel.byproduct.item, cleanRate(fuel.byproduct.rate * value))
       }
     } else if (meta.kind === 'extract') {
       const resource = allResources[meta.item]
@@ -235,6 +240,10 @@ export function interpretSolution(
     } else if (meta.kind === 'surplus') {
       surplus.push({ item: meta.item, rate: value })
     }
+  }
+
+  for (const [item, net] of Object.entries(netRates)) {
+    netRates[item] = cleanRate(net)
   }
 
   machineGroups.sort((a, b) => b.machines - a.machines)

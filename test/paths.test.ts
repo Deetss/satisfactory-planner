@@ -56,6 +56,22 @@ test('a run never doubles back, for any pair of faces or positions', () => {
         const b = { x: 100 + offset.x, y: 100 + offset.y }
         const path = orthogonalPath(a, from, b, to)
         const segments = segmentsOfPath(path)
+        const degenerate = from === to && offset.x === 0 && offset.y === 0
+
+        expect(
+          path[0],
+          `${from}->${to} at ${offset.x},${offset.y} loses its start`,
+        ).toEqual(a)
+        expect(
+          path[path.length - 1],
+          `${from}->${to} at ${offset.x},${offset.y} loses its end`,
+        ).toEqual(b)
+
+        // Two ports at one point on one face are two blocks in the same place,
+        // which no layout can produce: a run leaving along a normal and
+        // arriving against that same normal between identical points has
+        // nowhere to go, so there is no forward direction to assert.
+        if (degenerate) continue
 
         for (let i = 1; i < segments.length; i++) {
           const dot =

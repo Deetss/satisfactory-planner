@@ -201,6 +201,11 @@ export function orthogonalPath(
   const aStub = { x: a.x + aNormal.x * stub, y: a.y + aNormal.y * stub }
   const bStub = { x: b.x + bNormal.x * stub, y: b.y + bNormal.y * stub }
 
+  const sameDirection = aNormal.x === bNormal.x && aNormal.y === bNormal.y
+  const alignedAcross = horizontal
+    ? Math.abs(aStub.y - bStub.y) < EPSILON
+    : Math.abs(aStub.x - bStub.x) < EPSILON
+
   const middle: Point[] = []
   if (horizontal === (bNormal.x !== 0)) {
     // Same axis at both ends, so the run crosses over on the other axis.
@@ -208,14 +213,17 @@ export function orthogonalPath(
       ? crossing(aStub.x, aNormal.x, bStub.x, bNormal.x)
       : crossing(aStub.y, aNormal.y, bStub.y, bNormal.y)
 
-    if (cross !== null) {
+    // Two ports facing the same way on one line have no crossing that avoids a
+    // reversal: whichever stub is further out, the run reaches it and comes
+    // straight back down the line it arrived on. Send that case to the detour.
+    if (cross !== null && !(sameDirection && alignedAcross)) {
       middle.push(
         horizontal ? { x: cross, y: aStub.y } : { x: aStub.x, y: cross },
         horizontal ? { x: cross, y: bStub.y } : { x: bStub.x, y: cross },
       )
     } else {
-      // Faces pointing away from each other: no crossing can satisfy both, so
-      // the run has to detour along the perpendicular axis and come back.
+      // No crossing serves both ends, so the run detours along the
+      // perpendicular axis and comes back.
       let corridor = horizontal
         ? (aStub.y + bStub.y) / 2
         : (aStub.x + bStub.x) / 2

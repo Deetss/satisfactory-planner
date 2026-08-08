@@ -2213,3 +2213,32 @@ select {
     display: none;
   }
 }
+
+/* The error boundary's fallback. It is the whole window when it shows, so it
+   needs the padding and the measure of a page rather than of a paragraph. */
+.crash {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+.crash__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.crash__message {
+  margin: 0;
+  color: var(--muted);
+}
+
+.crash__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

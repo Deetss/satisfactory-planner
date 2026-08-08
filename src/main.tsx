@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { startUrlSync } from './state/urlState'
 import './styles.css'
 
@@ -10,7 +11,9 @@ if (!root) throw new Error('missing #root')
 const render = () =>
   createRoot(root).render(
     <StrictMode>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </StrictMode>,
   )
 

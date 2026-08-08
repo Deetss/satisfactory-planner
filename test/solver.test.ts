@@ -5,6 +5,7 @@ import { gameData, recipes } from '../src/data/gameData'
 import { interpretSolution, type PlanResult } from '../src/solver/interpret'
 import { toLpFormat } from '../src/solver/lp'
 import { buildModel, type PlanRequest } from '../src/solver/model'
+import { selectEnabledRecipes, usePlannerStore } from '../src/state/plannerStore'
 
 type Highs = Awaited<ReturnType<typeof highsLoader>>
 let highs: Highs
@@ -13,19 +14,34 @@ beforeAll(async () => {
   highs = await highsLoader()
 })
 
-/** Every standard (non-alternate) recipe. */
-const standardRecipes = new Set(
-  Object.values(recipes)
-    .filter((r) => !r.isAlternate)
-    .map((r) => r.className),
-)
+/**
+ * The recipe set the running app builds: non-alternates gated at the store's
+ * default tier, no alternates, no foraged inputs. Derived from the store
+ * rather than written out here so the two cannot drift apart if the default
+ * tier moves.
+ */
+const appRecipes = selectEnabledRecipes(usePlannerStore.getState())
+
+/**
+ * HiGHS reports column values to six significant figures, so any rate read
+ * off a column carries up to 5e-6 of relative error, and a rate derived from
+ * a fractional machine count carries it too. Assertions on those rates check
+ * relative error rather than decimal places, which would demand precision the
+ * solver never emitted.
+ */
+const SOLVER_RELATIVE_TOLERANCE = 5e-5
+
+const closeRelative = (actual: number, expected: number) =>
+  expect(Math.abs(actual - expected) / Math.abs(expected)).toBeLessThan(
+    SOLVER_RELATIVE_TOLERANCE,
+  )
 
 type PlanOverrides = Partial<PlanRequest>
 
 function plan(overrides: PlanOverrides = {}): PlanResult {
   const request: PlanRequest = {
     targets: {},
-    enabledRecipes: standardRecipes,
+    enabledRecipes: appRecipes,
     resourceCaps: {},
     objective: 'resources',
     allowSurplus: () => true,
@@ -80,7 +96,7 @@ test('iron ingots: 30/min is one smelter on 30 ore', () => {
 })
 
 test('steel ingots: 45/min is one foundry on 45 ore + 45 coal', () => {
-  const result = plan({ targets: { Desc_IngotSteel_C: 45 } })
+  const result = plan({ targets: { Desc_SteelIngot_C: 45 } })
   expect(result.status).toBe('optimal')
   expect(machinesFor(result, 'Recipe_IngotSteel_C')).toBeCloseTo(1, 6)
   expect(extractionOf(result, 'Desc_OreIron_C')).toBeCloseTo(45, 6)
@@ -103,10 +119,19 @@ test('reinforced iron plate: 60/min matches the hand-computed chain', () => {
 })
 
 test('alternates reduce ore use when the solver may pick them', () => {
+  // Holding the tier at 8 isolates the variable the test names: enabling every
+  // recipe key would also let in the tier 9 Converter chain.
+  const everyRecipe = selectEnabledRecipes({
+    ...usePlannerStore.getState(),
+    unlockedAlternates: Object.values(recipes)
+      .filter((r) => r.isAlternate)
+      .map((r) => r.className),
+  })
+
   const standard = plan({ targets: { Desc_IronPlateReinforced_C: 60 } })
   const withAlternates = plan({
     targets: { Desc_IronPlateReinforced_C: 60 },
-    enabledRecipes: new Set(Object.keys(recipes)),
+    enabledRecipes: everyRecipe,
   })
 
   expect(withAlternates.status).toBe('optimal')
@@ -158,12 +183,12 @@ test('resource limits make an over-ambitious target infeasible', () => {
 
 test('coal power covers its own draw and pulls 45 water per generator', () => {
   const result = plan({
-    targets: { Desc_IngotSteel_C: 45 },
+    targets: { Desc_SteelIngot_C: 45 },
     powerGeneration: { generators: ['Build_GeneratorCoal_C'] },
   })
   expect(result.status).toBe('optimal')
   expect(result.totals.powerProduced).toBeGreaterThanOrEqual(
-    result.totals.powerConsumed - 1e-6,
+    result.totals.powerConsumed * (1 - SOLVER_RELATIVE_TOLERANCE),
   )
 
   const coal = result.generatorGroups.find(
@@ -174,7 +199,7 @@ test('coal power covers its own draw and pulls 45 water per generator', () => {
   expect(coal!.waterRate / coal!.count).toBeCloseTo(45, 6)
 
   // Coal burned by the generators has to appear in the ore budget too.
-  expect(extractionOf(result, 'Desc_Coal_C')).toBeCloseTo(45 + coal!.fuelRate, 6)
+  closeRelative(extractionOf(result, 'Desc_Coal_C'), 45 + coal!.fuelRate)
 })
 
 test('underclocking never costs more power than running flat out', () => {
@@ -199,7 +224,7 @@ test('maximize finds the ceiling the resource limits allow', () => {
   // 60 RIP/min needs 720 ore, so 240 ore supports exactly 20/min.
   const { problem, registry } = buildModel({
     targets: { Desc_IronPlateReinforced_C: 0 },
-    enabledRecipes: standardRecipes,
+    enabledRecipes: appRecipes,
     resourceCaps: { Desc_OreIron_C: 240 },
     objective: 'resources',
     allowSurplus: () => true,
@@ -239,7 +264,7 @@ function balance(
 
   const { problem, registry } = buildModel({
     targets: zeroed,
-    enabledRecipes: standardRecipes,
+    enabledRecipes: appRecipes,
     resourceCaps: {},
     objective: 'resources',
     allowSurplus: () => true,
@@ -282,8 +307,10 @@ test('fitting to limits keeps the ratio between targets', () => {
     { Desc_IronPlate_C: 3, Desc_IronRod_C: 1 },
     { resourceCaps: { Desc_OreIron_C: 600 } },
   )!
-  expect(rates.Desc_IronPlate_C).toBeCloseTo(3600 / 11, 4)
-  expect(rates.Desc_IronRod_C).toBeCloseTo(1200 / 11, 4)
+  // A repeating fraction is where six significant figures shows: 1200/11 comes
+  // back as 109.091, so the check has to be relative rather than by decimals.
+  closeRelative(rates.Desc_IronPlate_C, 3600 / 11)
+  closeRelative(rates.Desc_IronRod_C, 1200 / 11)
   // The ratio the user asked for is preserved exactly.
   expect(rates.Desc_IronPlate_C / rates.Desc_IronRod_C).toBeCloseTo(3, 6)
 })

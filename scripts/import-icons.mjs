@@ -1,7 +1,8 @@
 // Copies the icons this planner needs out of an FModel/umodel export.
 //
-// Nothing is committed: game art belongs to Coffee Stain, so it stays local and
-// public/icons is gitignored. Re-run after a game update.
+// The imported icons are committed and shipped with the repo, which is
+// standard practice for community Satisfactory tools. Re-run this script
+// after a game update to refresh them.
 //
 // Usage: node scripts/import-icons.mjs "<path to export folder>"
 

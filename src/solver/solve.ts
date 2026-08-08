@@ -23,9 +23,6 @@ function loadSolver(): Promise<Highs> {
   return highsPromise
 }
 
-/** Call at startup so the first solve isn't waiting on the WASM download. */
-export const warmUpSolver = loadSolver
-
 export async function solvePlan(request: PlanRequest): Promise<PlanResult> {
   const { problem, registry } = buildModel(request)
   const lp = toLpFormat(problem)

@@ -1,12 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
-import { warmUpSolver } from './solver/solve'
 import { startUrlSync } from './state/urlState'
 import './styles.css'
-
-// Start fetching the solver wasm immediately so the first plan isn't waiting.
-void warmUpSolver()
 
 const root = document.getElementById('root')
 if (!root) throw new Error('missing #root')

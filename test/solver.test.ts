@@ -140,22 +140,37 @@ test('alternates reduce ore use when the solver may pick them', () => {
   )
 })
 
-test('byproducts must be consumed when surplus is disallowed', () => {
+test('surplus rules bind: a plastic plan has nowhere to put its residue', () => {
+  // No standard recipe terminates the Heavy Oil Residue chain: Petroleum Coke
+  // has no consumer, and the fuel and packaging branches only round-trip.
   const strict = plan({
     targets: { Desc_Plastic_C: 20 },
     // Water is free and unlimited, so leaving it unbalanced is not a mistake.
     allowSurplus: (item) => item === 'Desc_Water_C',
   })
 
-  expect(strict.status).toBe('optimal')
-  expect(
-    strict.surplus.find((s) => s.item === 'Desc_HeavyOilResidue_C'),
-  ).toBeUndefined()
+  expect(strict.status).toBe('infeasible')
+})
 
-  for (const [item, net] of Object.entries(strict.netRates)) {
-    if (item === 'Desc_Plastic_C' || item === 'Desc_Water_C') continue
-    expect(net, `net rate of ${gameData.items[item]?.name ?? item}`).toBeCloseTo(0, 6)
-  }
+test('one legal sink consumes the residue instead of leaking it', () => {
+  const result = plan({
+    targets: { Desc_Plastic_C: 20 },
+    allowSurplus: (item) =>
+      item === 'Desc_Water_C' || item === 'Desc_PetroleumCoke_C',
+  })
+
+  expect(result.status).toBe('optimal')
+  expect(machinesFor(result, 'Recipe_Plastic_C')).toBeCloseTo(1, 6)
+  expect(machinesFor(result, 'Recipe_PetroleumCoke_C')).toBeCloseTo(0.25, 6)
+
+  expect(result.surplus).toHaveLength(1)
+  expect(result.surplus[0].item).toBe('Desc_PetroleumCoke_C')
+  expect(result.surplus[0].rate).toBeCloseTo(30, 6)
+
+  // The byproduct is consumed rather than left over, which is the whole point
+  // of refusing it a surplus slack of its own.
+  expect(result.netRates.Desc_HeavyOilResidue_C ?? 0).toBeCloseTo(0, 6)
+  expect(result.netRates.Desc_Plastic_C).toBeCloseTo(20, 6)
 })
 
 test('every item balances: production minus consumption equals target plus surplus', () => {

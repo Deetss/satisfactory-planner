@@ -2,9 +2,14 @@ import { expect, test } from 'vitest'
 
 import { linkKey } from '../src/layout/congestion'
 import type { LayoutState } from '../src/layout/types'
-import { decodePlanCode, encodePlanCode } from '../src/state/planCode'
+import {
+  decodePlanCode,
+  encodePlanCode,
+  MAX_PLAN_CODE_CHARS,
+} from '../src/state/planCode'
 import { planName, type PlanFile } from '../src/state/planFile'
 import { normalizePlan } from '../src/state/plannerStore'
+import { inflateBounded } from '../src/state/shareLink'
 
 // Section one: the normalize guards.
 
@@ -275,4 +280,198 @@ test('a module id matching no expected affix travels verbatim', () => {
 
   expect(Object.keys(back.placements)).toEqual([odd])
   expect(back.placements[odd].moduleId).toBe(odd)
+})
+
+// Section four: hostile input.
+
+test('a code of exactly the maximum length is still parsed', () => {
+  expect(() => decodePlanCode('x'.repeat(MAX_PLAN_CODE_CHARS))).toThrow(
+    'That link is damaged, most likely cut short in transit.',
+  )
+})
+
+test('a code one character over the maximum is refused before it is parsed', () => {
+  expect(() => decodePlanCode('x'.repeat(MAX_PLAN_CODE_CHARS + 1))).toThrow(
+    'That link is too large to open.',
+  )
+})
+
+const VALID_CODE = encodePlanCode(fixture)
+
+/**
+ * Three families of damage, every one of them derived from a single valid
+ * code and none of them random, so a failure here reproduces exactly.
+ */
+function malformedCodes(): { label: string; text: string }[] {
+  const variants: { label: string; text: string }[] = []
+
+  for (let eighth = 0; eighth < 8; eighth++) {
+    const cut = Math.floor((VALID_CODE.length * eighth) / 8)
+    variants.push({
+      label: `truncated at ${cut}`,
+      text: VALID_CODE.slice(0, cut),
+    })
+  }
+
+  const parsed = JSON.parse(VALID_CODE) as Record<string, unknown>
+  const arrayKeys = Object.keys(parsed).filter((key) =>
+    Array.isArray(parsed[key]),
+  )
+  for (const key of arrayKeys) {
+    for (const swap of [7, 'wrong', {}]) {
+      variants.push({
+        label: `${key} is ${JSON.stringify(swap)}`,
+        text: JSON.stringify({ ...parsed, [key]: swap }),
+      })
+    }
+  }
+
+  const placement = (parsed.P as unknown[])[0] as unknown[]
+  const corrupted: [string, unknown][] = [
+    ['a placement missing its trailing slots', placement.slice(0, 3)],
+    [
+      'a placement holding an array where a number belongs',
+      placement.map((slot, index) => (index === 2 ? [1, 2] : slot)),
+    ],
+    [
+      'a placement holding a string where a floor index belongs',
+      placement.map((slot, index) => (index === 1 ? 'floor' : slot)),
+    ],
+  ]
+  for (const [label, entry] of corrupted) {
+    variants.push({ label, text: JSON.stringify({ ...parsed, P: [entry] }) })
+  }
+
+  return variants
+}
+
+test('the fuzz set covers every family it claims to', () => {
+  // 8 truncations, 8 array-valued keys swapped 3 ways, and 3 corrupted tuples.
+  // Pinned so a change to the fixture cannot quietly shrink the coverage.
+  expect(malformedCodes().length).toBe(35)
+})
+
+test('no malformed code crashes the decoder', () => {
+  const failures: string[] = []
+
+  for (const { label, text } of malformedCodes()) {
+    try {
+      const decoded = decodePlanCode(text)
+      if (typeof decoded.plan !== 'object' || decoded.plan === null) {
+        failures.push(`${label}: plan is not an object`)
+      }
+      if (typeof decoded.layout !== 'object' || decoded.layout === null) {
+        failures.push(`${label}: layout is not an object`)
+      }
+    } catch (cause) {
+      // A TypeError means an unguarded property read, which is the crash the
+      // decoder's bounds exist to rule out. Any other Error is a refused link,
+      // which the banner already reports.
+      if (cause instanceof TypeError) {
+        failures.push(`${label}: ${String(cause)}`)
+      } else if (!(cause instanceof Error)) {
+        failures.push(`${label}: threw a non-Error`)
+      }
+    }
+  }
+
+  expect(failures).toEqual([])
+})
+
+test('a code from a newer planner is refused by version, not by shape', () => {
+  const parsed = JSON.parse(VALID_CODE) as Record<string, unknown>
+
+  expect(() => decodePlanCode(JSON.stringify({ ...parsed, v: 99 }))).toThrow(
+    'That link was made by a newer version of the planner (v99).',
+  )
+})
+
+/** Every numeric slot carries 1e400, which JSON.parse yields as Infinity. */
+const INFINITE_CODE =
+  '{"v":2,"t":{"IronPlate":1e400},"o":0,"r":1e400,"z":1e400,"A":0,' +
+  '"F":[["Ground",1e400,1e400,0,1e400,1e400]],' +
+  '"P":[["rIngotIron",0,1e400,1e400,1e400,1e400,1e400,1e400]],' +
+  '"R":[["IronPlate",0,1e400,1e400]],' +
+  '"D":[["rIngotIron","rIronPlate","IronIngot",1e400,1e400,1e400,1e400,[1e400,1e400]]],' +
+  '"T":[[0,0,"rIngotIron","rIronPlate","IronIngot",1e400,1e400]]}'
+
+const numbersIn = (value: unknown): number[] =>
+  typeof value === 'number'
+    ? [value]
+    : typeof value === 'object' && value !== null
+      ? Object.values(value).flatMap(numbersIn)
+      : []
+
+test('an Infinity in the layout falls back to its default', () => {
+  const back = decodePlanCode(INFINITE_CODE)
+
+  expect(back.plan.tier).toBe(8)
+  expect(back.layout.snapMetres).toBe(8)
+  expect(back.layout.floors[0].gridWidth).toBe(12)
+  expect(back.layout.floors[0].gridDepth).toBe(12)
+  expect(back.layout.floors[0].originX).toBe(0)
+  expect(back.layout.floors[0].originY).toBe(0)
+  expect(back.layout.placements[IRON].x).toBe(0)
+  expect(back.layout.placements[IRON].y).toBe(0)
+  expect(back.layout.placements[IRON].orientation).toBe(0)
+  expect(back.layout.placements[IRON].columns).toBe(1)
+  expect(numbersIn(back.layout).every(Number.isFinite)).toBe(true)
+})
+
+test('an Infinity in the target map is dropped before it reaches the store', () => {
+  const back = decodePlanCode(INFINITE_CODE)
+
+  // The decoder only renames the keys of a map, so its values never meet the
+  // finiteness guard the tuple slots get. normalizePlan is what holds the line
+  // here, which is why the startup path now runs through it.
+  expect(back.plan.targets).toEqual({ Desc_IronPlate_C: Infinity })
+  expect(normalizePlan(back.plan).targets).toEqual({})
+})
+
+const POLLUTING_CODE =
+  '{"v":2,"t":{"=__proto__":{"polluted":1}},"o":0,"r":6,"z":8,"A":0,"F":[],"P":[]}'
+
+test('a prototype-shaped key in the target map never reaches Object.prototype', () => {
+  const ownNamesBefore = Object.getOwnPropertyNames(Object.prototype).length
+  const back = decodePlanCode(POLLUTING_CODE)
+
+  // Object.fromEntries creates own data properties, so the key lands in the
+  // map itself rather than running Object.prototype's __proto__ setter.
+  expect(Object.keys(back.plan.targets)).toEqual(['__proto__'])
+  expect(Object.getPrototypeOf(back.plan.targets)).toBe(Object.prototype)
+  expect(Object.getOwnPropertyNames(Object.prototype).length).toBe(
+    ownNamesBefore,
+  )
+  expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+})
+
+// Section five: the inflate bound.
+
+/** The same format buildShareUrl writes, so these bytes are a real fragment. */
+async function deflateRaw(text: string): Promise<Uint8Array> {
+  const stream = new Blob([text])
+    .stream()
+    .pipeThrough(new CompressionStream('deflate-raw'))
+  return new Uint8Array(await new Response(stream).arrayBuffer())
+}
+
+test('inflateBounded resolves at the decoded length and rejects one below it', async () => {
+  const text = 'a short known string'
+  const bytes = await deflateRaw(text)
+
+  await expect(inflateBounded(bytes, text.length)).resolves.toBe(text)
+  await expect(inflateBounded(bytes, text.length - 1)).rejects.toThrow(
+    'That link expands to more than the planner will open.',
+  )
+})
+
+test('inflateBounded refuses a fragment that expands to millions of characters', async () => {
+  const bomb = await deflateRaw('a'.repeat(2_000_000))
+
+  // Well under the fragment cap, so this really is an expansion rather than a
+  // large link that would have been refused on its own length.
+  expect(bomb.length).toBeLessThan(10_000)
+  await expect(inflateBounded(bomb, 1000)).rejects.toThrow(
+    'That link expands to more than the planner will open.',
+  )
 })

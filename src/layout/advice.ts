@@ -17,6 +17,7 @@
 
 import { itemName } from '../data/gameData'
 import {
+  SHAFT_CLEARANCE_M,
   linkKey,
   type FloorCongestion,
   type Shaft,
@@ -69,9 +70,6 @@ export interface Advice {
   /** Ordered: take the first unless you have a reason not to. */
   fixes: Fix[]
 }
-
-/** Plan-view width a lift or riser column needs, in metres. */
-const SHAFT_CLEARANCE_M = 2
 
 /** How far a block may be nudged before moving it stops being a small fix. */
 const SEARCH_RADIUS_M = FOUNDATION_M * 5

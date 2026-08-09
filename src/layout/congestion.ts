@@ -11,7 +11,12 @@ import { isFluid, itemName } from '../data/gameData'
 import type { Point, RoutePath } from './paths'
 import { pathLength } from './paths'
 import type { FactoryModule, Floor, Placement, Rect } from './types'
-import { placementRect, sideAnchor } from './types'
+import {
+  STORAGE_PREFIX,
+  isStorageModule,
+  placementRect,
+  sideAnchor,
+} from './types'
 import { num } from '../format'
 
 /** Runs closer than this in a shared lane are treated as the same lane. */
@@ -339,8 +344,14 @@ export function findFloorLinks(
   return links
 }
 
-/** Plan-view width a lift or riser column needs, in metres. */
-const SHAFT_CLEARANCE_M = 2
+/**
+ * Plan-view width a lift or riser column needs, in metres.
+ *
+ * Exported because `advice.ts` proposes moves that have to clear the same
+ * distance this rejects them for. Two copies of the number would let a
+ * suggestion be offered and then immediately reported as blocked.
+ */
+export const SHAFT_CLEARANCE_M = 2
 
 export interface Shaft {
   id: string
@@ -397,14 +408,6 @@ function originOf(floors: Floor[], floorId: string) {
 }
 
 /**
- * A cross-floor run as the vertical column it really is.
- *
- * The column stands at the source block's output face, which is where a lift
- * would go, and occupies that spot on every floor between the two ends.
- * Positions are in base coordinates, not floor-local ones, because floors can
- * be offset from each other and a column is vertical through all of them.
- */
-/**
  * Stockpiles that sit on a different floor from whatever fills them.
  *
  * A reserve block declares no inputs, because a depot is filled by tapping a
@@ -423,11 +426,11 @@ export function findDepotFeeds(
   const placedOn = (moduleId: string) => placements[moduleId]?.floorId
 
   for (const depot of modules) {
-    if (!depot.id.startsWith('storage:')) continue
+    if (!isStorageModule(depot.id)) continue
     const depotFloor = placedOn(depot.id)
     if (!depotFloor) continue
 
-    const item = depot.id.slice('storage:'.length)
+    const item = depot.id.slice(STORAGE_PREFIX.length)
 
     // The biggest producer is the line worth walking to.
     const source = modules
@@ -463,6 +466,14 @@ export function findDepotFeeds(
   return feeds
 }
 
+/**
+ * A cross-floor run as the vertical column it really is.
+ *
+ * The column stands at the source block's output face, which is where a lift
+ * would go, and occupies that spot on every floor between the two ends.
+ * Positions are in base coordinates, not floor-local ones, because floors can
+ * be offset from each other and a column is vertical through all of them.
+ */
 export function planShafts(
   links: FloorLink[],
   placements: Record<string, Placement>,

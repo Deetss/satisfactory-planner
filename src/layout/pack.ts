@@ -144,11 +144,6 @@ export interface PackedModule {
 }
 
 /**
- * Arranges blocks into left-to-right bands, one band per production stage, so
- * material flows across the floor in the same direction the graph reads and
- * belt runs stay short. Within a band, blocks stack downward.
- */
-/**
  * Clear ground reserved around every block, in metres.
  *
  * A block's footprint is its machines. What it doesn't include is the manifold
@@ -169,6 +164,11 @@ export const SERVICE_M = FOUNDATION_M
  */
 export const EDGE_M = FOUNDATION_M
 
+/**
+ * Arranges blocks into left-to-right bands, one band per production stage, so
+ * material flows across the floor in the same direction the graph reads and
+ * belt runs stay short. Within a band, blocks stack downward.
+ */
 export function packByStage(
   modules: FactoryModule[],
   options: {

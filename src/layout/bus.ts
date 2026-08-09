@@ -177,7 +177,7 @@ export function packAsBus(
 
       // Whichever way round fits more of the pair, preferring to load the
       // shallower side first when both work.
-      const options: boolean[][] =
+      const orders: boolean[][] =
         pair.length === 1
           ? [[maxNear <= maxFar]]
           : maxNear <= maxFar
@@ -190,9 +190,9 @@ export function packAsBus(
                 [true, false],
               ]
 
-      let best = options[0]
+      let best = orders[0]
       let bestScore = scoreOrder(pair, best)
-      for (const option of options.slice(1)) {
+      for (const option of orders.slice(1)) {
         const score = scoreOrder(pair, option)
         if (score.count > bestScore.count) {
           best = option

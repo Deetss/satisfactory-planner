@@ -75,24 +75,3 @@ export function unsupportedCells(floor: Floor, below: Floor[]): Cell[] {
 
   return cells
 }
-
-/** Which floor a point on an upper deck is standing over, nearest first. */
-export function standingOn(
-  x: number,
-  y: number,
-  below: Floor[],
-): Floor | null {
-  // `below` runs ground-upward, so the last match is the nearest floor down.
-  for (let i = below.length - 1; i >= 0; i--) {
-    const deck = floorRect(below[i])
-    if (
-      x >= deck.x &&
-      y >= deck.y &&
-      x <= deck.x + deck.width &&
-      y <= deck.y + deck.depth
-    ) {
-      return below[i]
-    }
-  }
-  return null
-}

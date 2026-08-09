@@ -31,7 +31,7 @@ import type {
 } from '../layout/types'
 import { planName, type PlanFile } from './planFile'
 import type { PlannerSnapshot } from './plannerStore'
-import type { Reserve } from '../layout/storage'
+import { DEFAULT_BUFFER_MINUTES, type Reserve } from '../layout/storage'
 
 /** Bump only for a change that older codes can't be read through. */
 export const PLAN_CODE_VERSION = 2
@@ -43,6 +43,14 @@ export const PLAN_CODE_VERSION = 2
  */
 export const MAX_PLAN_CODE_CHARS = 1_000_000
 
+/**
+ * Wire order, and not the same order as `SIDES` in `../layout/types`.
+ *
+ * Index 0 is north here and west there. Every placement in every link already
+ * sent carries a face as an index into this list, so replacing it with the
+ * shared constant would rotate the manifolds of every plan in the wild by one
+ * quarter turn. It stays local and it stays in this order.
+ */
 const SIDES: Side[] = ['north', 'east', 'south', 'west']
 const OBJECTIVES: PlannerSnapshot['objective'][] = [
   'resources',
@@ -404,7 +412,7 @@ export function decodePlanCode(text: string): PlanFile {
       item: item.unpack(entry[0]),
       mode: pick(RESERVE_MODES, entry[1], 'fixed'),
       quantity: number(entry[2], 0),
-      bufferMinutes: number(entry[3], 10),
+      bufferMinutes: number(entry[3], DEFAULT_BUFFER_MINUTES),
     }))
 
   const targets = unpackMap(code.t, item.unpack)
@@ -481,7 +489,7 @@ export function decodePlanCode(text: string): PlanFile {
   }
 
   const layout: LayoutState = {
-    floors: floors.length > 0 ? floors : [],
+    floors,
     activeFloorId: (floors[number(code.A, 0)] ?? floors[0])?.id ?? 'floor-1',
     placements,
     snapMetres: number(code.z, 8),

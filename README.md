@@ -106,8 +106,9 @@ Refresh the dataset after a game update:
 npm run extract
 ```
 
-It finds `CommunityResources/Docs/en-US.json` by itself on a standard Steam or
-Epic install. Pass the path when it cannot:
+With no argument it checks three hardcoded WSL paths, which are the author's own
+Steam and Epic install locations. Anywhere else, and that includes native
+Windows, Linux and macOS, pass the path:
 
 ```bash
 npm run extract -- "<Satisfactory>/CommunityResources/Docs/en-US.json"

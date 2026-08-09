@@ -6,3 +6,6 @@ dist
 Exports/
 .remember/
 .playwright-mcp/
+
+# GSD planning artifacts: kept local, not published
+.planning/

@@ -1,7 +1,10 @@
 # Extracting icons with FModel
 
-Only what this planner needs. Icons aren't committed, because the art is Coffee
-Stain's, so `public/icons/` is gitignored and you extract from your own install.
+Only what this planner needs. The icons the app references are extracted from
+your own game install and committed under `public/icons/`, which is standard
+practice for community Satisfactory tools. Follow this to refresh them after a
+game update, or to fill in the ones that aren't there yet: 143 of the 200 are in
+the repo, and the `Buildable/Factory` folder is the big gap.
 
 The app works without any of this; missing icons fall back to initials.
 

@@ -91,3 +91,68 @@ npm run dev -- --host
 Then open the printed network address. On WSL2 with `networkingMode=mirrored`
 the WSL IP is already the LAN IP, so no port forwarding is needed. Windows
 Firewall may prompt for inbound on 5173 once.
+
+## Where the game data comes from
+
+Everything in `src/data/game-data.json` is derived from the game's own Docs
+export by `scripts/extract-game-data.mjs`. The icons under `public/icons/` are
+copied out of an FModel export by `scripts/import-icons.mjs`. Both are committed
+to this repo, which is standard practice for community Satisfactory tools, and
+it is what lets a clone build and run with no game install.
+
+Refresh the dataset after a game update:
+
+```bash
+npm run extract
+```
+
+It finds `CommunityResources/Docs/en-US.json` by itself on a standard Steam or
+Epic install. Pass the path when it cannot:
+
+```bash
+npm run extract -- "<Satisfactory>/CommunityResources/Docs/en-US.json"
+```
+
+Refresh the icons by pointing the importer at an FModel export folder:
+
+```bash
+npm run icons -- "./Exports"
+```
+
+It walks the export, takes only the icons the app references, downscales
+anything over 64 px if `python3` has Pillow, and reports what it could not find.
+Setting FModel up is the involved part: it needs a mappings file and a custom
+versions file out of your game folder.
+[docs/ICON-EXTRACTION.md](docs/ICON-EXTRACTION.md) covers that.
+
+A few things about the extracted data are worth knowing:
+
+- Fluid quantities, and the energy value of anything that is not a solid, are
+  stored per cubic centimetre and scaled to cubic metres.
+- Building footprints come from the clearance boxes, with rotation applied.
+  Width and depth ignore boxes flagged `ExcludeForSnapping` or `CT_Soft`,
+  because those volumes do not block placement. Height counts every box, since a
+  machine's upper body is often a non-snapping one.
+- Recipe names do not reliably track the buildable they produce, so unlock tiers
+  are matched by product descriptor: a building's tier is the lowest one among
+  the schematics that grant any build recipe for that descriptor.
+- Node purity multipliers (impure 0.5, pure 2.0), the 250% overclock ceiling and
+  the map-wide resource totals are not in the export. They are constants in the
+  script, with their sources noted in comments.
+
+## Known gaps
+
+**The dataset shipped here predates the extractor's Space Elevator support.**
+`src/data/game-data.json` carries no `spaceElevator` entry, so the Space Elevator
+panel runs in a degraded mode. It still lists the elevator parts your plan makes
+and how long 100 of each takes at that rate, but with no phase requirements to
+read it cannot give per phase delivery times or size the depot. The panel says
+as much on screen and points at the extractor. Re-extracting against a current
+install fixes it.
+
+**143 of the roughly 200 icons the app references are present.** The 57 missing
+are the 33 machine, generator, miner, belt, pipe and container icons from the
+`Buildable/Factory` folder, which is most of what the Layout view shows, plus 24
+event and ammunition items. A tinted initial stands in for each one, so the app
+is fully usable without them. `docs/ICON-EXTRACTION.md` lists the FModel folders
+that cover the rest.

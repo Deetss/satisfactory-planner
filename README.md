@@ -44,3 +44,50 @@ Opening that gives you Iron Plate at 120 per minute: 12 machines, 48 MW draw.
 
 The site is not deployed yet, so that link has nothing to resolve against until
 the deploy phase lands.
+
+## Development
+
+Node and npm are the only prerequisites. The game data and the icons are
+committed to the repo, so a fresh clone runs with no Satisfactory install
+anywhere. You only need the game to refresh either of them, which is the next
+section.
+
+```bash
+git clone "https://github.com/Deetss/satisfactory-planner.git"
+cd "satisfactory-planner"
+npm ci
+npm run dev
+```
+
+`npm ci` rather than `npm install`, because the lockfile is committed and
+`npm ci` installs exactly what it records. Reach for `npm install` only when you
+are deliberately adding or bumping a dependency.
+
+The rest of the scripts:
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Vite dev server, printed address is usually `http://localhost:5173` |
+| `npm run build` | Production build. It typechecks first: the script is `tsc --noEmit && vite build` |
+| `npm run typecheck` | The typecheck on its own, without the build |
+| `npm test` | The vitest suite, one run |
+| `npm run test:watch` | The same suite, re-running as you edit |
+| `npm run preview` | Serves the built `dist/`, for checking a production build |
+
+Vitest reads the same `vite.config.ts` the app builds with, so module resolution
+is identical in the tests and in the browser. There are five files in `test/`:
+`solver` for machine counts, alternates, surplus rules and resource limits,
+`layout` for belt and pipe choice, block packing, storage reserves and mining
+node counts, `paths` for route shapes and congestion detection, `state` for plan
+normalization and the v2 link codec, and `diagnose` for what the app reports
+when a plan cannot be solved.
+
+### Phone access
+
+```bash
+npm run dev -- --host
+```
+
+Then open the printed network address. On WSL2 with `networkingMode=mirrored`
+the WSL IP is already the LAN IP, so no port forwarding is needed. Windows
+Firewall may prompt for inbound on 5173 once.

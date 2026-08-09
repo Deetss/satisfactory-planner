@@ -31,6 +31,8 @@ is worth attempting.
 
 ## Try it
 
+**[deetss.github.io/satisfactory-planner](https://deetss.github.io/satisfactory-planner/)**
+
 The whole plan, layout included, rides in the URL fragment. Encoding happens as
 you work, so the address bar is always a complete link with no button to press
 first. Copy link in the Share & save panel compresses it to about half the
@@ -41,9 +43,6 @@ https://deetss.github.io/satisfactory-planner/#2.eyJ2IjoyLCJ0Ijp7Iklyb25QbGF0ZSI
 ```
 
 Opening that gives you Iron Plate at 120 per minute: 12 machines, 48 MW draw.
-
-The site is not deployed yet, so that link has nothing to resolve against until
-the deploy phase lands.
 
 ## Development
 

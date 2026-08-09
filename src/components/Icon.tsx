@@ -45,8 +45,8 @@ function initialsOf(name: string) {
 /**
  * Renders an extracted game icon, falling back to initials.
  *
- * Icons are imported from the player's own install and gitignored, so the app
- * has to look right with none of them present.
+ * Only 143 of the roughly 200 icons the app references are present, so the
+ * fallback is the normal path for the rest, not an error case.
  */
 export function Icon({ icon, name, size = 20 }: Props) {
   const [failed, setFailed] = useState(false)

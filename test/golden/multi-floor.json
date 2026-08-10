@@ -1,0 +1,1138 @@
+{
+  "modules": [
+    {
+      "id": "recipe:Recipe_IronRod_C",
+      "label": "Iron Rod",
+      "machines": 11,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Screw_C",
+      "label": "Screws",
+      "machines": 9,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotIron_C",
+      "label": "Iron Ingot",
+      "machines": 7,
+      "footprint": {
+        "width": 5,
+        "depth": 10,
+        "height": 8.5
+      }
+    },
+    {
+      "id": "recipe:Recipe_Rotor_C",
+      "label": "Rotor",
+      "machines": 3,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_Wire_C",
+      "label": "Wire",
+      "machines": 3,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotSteel_C",
+      "label": "Steel Ingot",
+      "machines": 3,
+      "footprint": {
+        "width": 10,
+        "depth": 10,
+        "height": 9
+      }
+    },
+    {
+      "id": "recipe:Recipe_Stator_C",
+      "label": "Stator",
+      "machines": 2,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_SteelPipe_C",
+      "label": "Steel Pipe",
+      "machines": 2,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotCopper_C",
+      "label": "Copper Ingot",
+      "machines": 2,
+      "footprint": {
+        "width": 5,
+        "depth": 10,
+        "height": 8.5
+      }
+    },
+    {
+      "id": "recipe:Recipe_IronPlate_C",
+      "label": "Iron Plate",
+      "machines": 2,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Motor_C",
+      "label": "Motor",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_SpaceElevatorPart_1_C",
+      "label": "Smart Plating",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_SteelBeam_C",
+      "label": "Steel Beam",
+      "machines": 1,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IronPlateReinforced_C",
+      "label": "Reinforced Iron Plate",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_ModularFrame_C",
+      "label": "Modular Frame",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_SpaceElevatorPart_2_C",
+      "label": "Versatile Framework",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "storage:Desc_IronRod_C",
+      "label": "Iron Rod reserve",
+      "machines": 1,
+      "footprint": {
+        "width": 5,
+        "depth": 11,
+        "height": 8
+      }
+    },
+    {
+      "id": "storage:Desc_Wire_C",
+      "label": "Wire reserve",
+      "machines": 1,
+      "footprint": {
+        "width": 5,
+        "depth": 11,
+        "height": 8
+      }
+    }
+  ],
+  "floors": [
+    {
+      "id": "floor-1",
+      "gridWidth": 14,
+      "gridDepth": 14,
+      "role": "production"
+    },
+    {
+      "id": "floor-2",
+      "gridWidth": 14,
+      "gridDepth": 14,
+      "role": "production"
+    },
+    {
+      "id": "floor-3",
+      "gridWidth": 14,
+      "gridDepth": 14,
+      "role": "production"
+    },
+    {
+      "id": "floor-4",
+      "gridWidth": 8,
+      "gridDepth": 8,
+      "role": "storage"
+    }
+  ],
+  "placements": [
+    {
+      "moduleId": "recipe:Recipe_IngotCopper_C",
+      "floorId": "floor-1",
+      "x": 40,
+      "y": 8,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_IngotIron_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 24,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_IngotSteel_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 72,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronPlateReinforced_C",
+      "floorId": "floor-2",
+      "x": 80,
+      "y": 8,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronPlate_C",
+      "floorId": "floor-1",
+      "x": 40,
+      "y": 48,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronRod_C",
+      "floorId": "floor-1",
+      "x": 64,
+      "y": 24,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_ModularFrame_C",
+      "floorId": "floor-2",
+      "x": 64,
+      "y": 32,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "south",
+      "outputSide": "west"
+    },
+    {
+      "moduleId": "recipe:Recipe_Motor_C",
+      "floorId": "floor-2",
+      "x": 72,
+      "y": 88,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "north",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_Rotor_C",
+      "floorId": "floor-2",
+      "x": 8,
+      "y": 56,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Screw_C",
+      "floorId": "floor-2",
+      "x": 8,
+      "y": 8,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "east",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_SpaceElevatorPart_1_C",
+      "floorId": "floor-2",
+      "x": 40,
+      "y": 88,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "south",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_SpaceElevatorPart_2_C",
+      "floorId": "floor-3",
+      "x": 8,
+      "y": 8,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Stator_C",
+      "floorId": "floor-2",
+      "x": 56,
+      "y": 56,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "north",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_SteelBeam_C",
+      "floorId": "floor-1",
+      "x": 40,
+      "y": 88,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "west"
+    },
+    {
+      "moduleId": "recipe:Recipe_SteelPipe_C",
+      "floorId": "floor-1",
+      "x": 64,
+      "y": 80,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "south",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_Wire_C",
+      "floorId": "floor-2",
+      "x": 48,
+      "y": 8,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "south",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "storage:Desc_IronRod_C",
+      "floorId": "floor-4",
+      "x": 8,
+      "y": 8,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "storage:Desc_Wire_C",
+      "floorId": "floor-4",
+      "x": 8,
+      "y": 40,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    }
+  ],
+  "paths": [
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotCopper_C:Desc_OreCopper_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 30,
+          "y": 20
+        },
+        {
+          "x": 40,
+          "y": 20
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotIron_C:Desc_OreIron_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": -2,
+          "y": 40
+        },
+        {
+          "x": 8,
+          "y": 40
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotSteel_C:Desc_Coal_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": -2,
+          "y": 86
+        },
+        {
+          "x": 8,
+          "y": 86
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotSteel_C:Desc_OreIron_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": -2,
+          "y": 90
+        },
+        {
+          "x": 8,
+          "y": 90
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotCopper_C->recipe:Recipe_Wire_C:Desc_CopperIngot_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 48,
+          "y": 20
+        },
+        {
+          "x": 58,
+          "y": 20
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotIron_C->recipe:Recipe_IronPlate_C:Desc_IronIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 40
+        },
+        {
+          "x": 32,
+          "y": 40
+        },
+        {
+          "x": 32,
+          "y": 60
+        },
+        {
+          "x": 40,
+          "y": 60
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotIron_C->recipe:Recipe_IronRod_C:Desc_IronIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 40
+        },
+        {
+          "x": 44,
+          "y": 40
+        },
+        {
+          "x": 44,
+          "y": 44
+        },
+        {
+          "x": 64,
+          "y": 44
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotSteel_C->recipe:Recipe_SteelBeam_C:Desc_SteelIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 88
+        },
+        {
+          "x": 32,
+          "y": 88
+        },
+        {
+          "x": 32,
+          "y": 98
+        },
+        {
+          "x": 40,
+          "y": 98
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotSteel_C->recipe:Recipe_SteelPipe_C:Desc_SteelIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 88
+        },
+        {
+          "x": 30,
+          "y": 88
+        },
+        {
+          "x": 30,
+          "y": 110
+        },
+        {
+          "x": 66.667,
+          "y": 110
+        },
+        {
+          "x": 66.667,
+          "y": 104
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronPlate_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronPlate_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 48,
+          "y": 60
+        },
+        {
+          "x": 58,
+          "y": 60
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_ModularFrame_C:Desc_IronRod_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 88,
+          "y": 44
+        },
+        {
+          "x": 98,
+          "y": 44
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Rotor_C:Desc_IronRod_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 88,
+          "y": 44
+        },
+        {
+          "x": 98,
+          "y": 44
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Screw_C:Desc_IronRod_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 88,
+          "y": 44
+        },
+        {
+          "x": 98,
+          "y": 44
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_SteelBeam_C->recipe:Recipe_SpaceElevatorPart_2_C:Desc_SteelPlate_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 40,
+          "y": 94
+        },
+        {
+          "x": 30,
+          "y": 94
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_SteelPipe_C->recipe:Recipe_Stator_C:Desc_SteelPipe_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 69.333,
+          "y": 104
+        },
+        {
+          "x": 69.333,
+          "y": 114
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "in->recipe:Recipe_Wire_C:Desc_CopperIngot_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 54,
+          "y": 42
+        },
+        {
+          "x": 54,
+          "y": 32
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IngotCopper_C->recipe:Recipe_Wire_C:Desc_CopperIngot_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 54,
+          "y": 42
+        },
+        {
+          "x": 54,
+          "y": 32
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IronPlateReinforced_C->recipe:Recipe_ModularFrame_C:Desc_IronPlateReinforced_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 88,
+          "y": 24
+        },
+        {
+          "x": 88,
+          "y": 54
+        },
+        {
+          "x": 74,
+          "y": 54
+        },
+        {
+          "x": 74,
+          "y": 48
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IronPlateReinforced_C->recipe:Recipe_SpaceElevatorPart_1_C:Desc_IronPlateReinforced_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 88,
+          "y": 24
+        },
+        {
+          "x": 88,
+          "y": 110
+        },
+        {
+          "x": 50,
+          "y": 110
+        },
+        {
+          "x": 50,
+          "y": 104
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IronPlate_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronPlate_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 70,
+          "y": 18
+        },
+        {
+          "x": 80,
+          "y": 18
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_ModularFrame_C:Desc_IronRod_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 70,
+          "y": 58
+        },
+        {
+          "x": 70,
+          "y": 48
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Rotor_C:Desc_IronRod_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": -2,
+          "y": 66
+        },
+        {
+          "x": 8,
+          "y": 66
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Screw_C:Desc_IronRod_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 42,
+          "y": 24
+        },
+        {
+          "x": 32,
+          "y": 24
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_ModularFrame_C->recipe:Recipe_SpaceElevatorPart_2_C:Desc_ModularFrame_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 64,
+          "y": 40
+        },
+        {
+          "x": 54,
+          "y": 40
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Motor_C->out:Desc_Motor_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 84,
+          "y": 88
+        },
+        {
+          "x": 84,
+          "y": 78
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Rotor_C->recipe:Recipe_Motor_C:Desc_Rotor_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 40,
+          "y": 64
+        },
+        {
+          "x": 46,
+          "y": 64
+        },
+        {
+          "x": 46,
+          "y": 82
+        },
+        {
+          "x": 76,
+          "y": 82
+        },
+        {
+          "x": 76,
+          "y": 88
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Rotor_C->recipe:Recipe_SpaceElevatorPart_1_C:Desc_Rotor_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 40,
+          "y": 64
+        },
+        {
+          "x": 46,
+          "y": 64
+        },
+        {
+          "x": 46,
+          "y": 110
+        },
+        {
+          "x": 46,
+          "y": 104
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 20,
+          "y": 8
+        },
+        {
+          "x": 20,
+          "y": 2
+        },
+        {
+          "x": 74,
+          "y": 2
+        },
+        {
+          "x": 74,
+          "y": 14
+        },
+        {
+          "x": 80,
+          "y": 14
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_Rotor_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 20,
+          "y": 8
+        },
+        {
+          "x": 20,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 62
+        },
+        {
+          "x": 8,
+          "y": 62
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_SpaceElevatorPart_1_C->out:Desc_SpaceElevatorPart_1_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 56,
+          "y": 96
+        },
+        {
+          "x": 66,
+          "y": 96
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Stator_C->recipe:Recipe_Motor_C:Desc_Stator_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 68,
+          "y": 72
+        },
+        {
+          "x": 68,
+          "y": 80
+        },
+        {
+          "x": 80,
+          "y": 80
+        },
+        {
+          "x": 80,
+          "y": 88
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_SteelPipe_C->recipe:Recipe_Stator_C:Desc_SteelPipe_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 70,
+          "y": 46
+        },
+        {
+          "x": 70,
+          "y": 56
+        }
+      ]
+    },
+    {
+      "floorId": "floor-2",
+      "routeId": "recipe:Recipe_Wire_C->recipe:Recipe_Stator_C:Desc_Wire_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 58,
+          "y": 32
+        },
+        {
+          "x": 58,
+          "y": 44
+        },
+        {
+          "x": 66,
+          "y": 44
+        },
+        {
+          "x": 66,
+          "y": 56
+        }
+      ]
+    },
+    {
+      "floorId": "floor-3",
+      "routeId": "recipe:Recipe_ModularFrame_C->recipe:Recipe_SpaceElevatorPart_2_C:Desc_ModularFrame_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": -2,
+          "y": 14
+        },
+        {
+          "x": 8,
+          "y": 14
+        }
+      ]
+    },
+    {
+      "floorId": "floor-3",
+      "routeId": "recipe:Recipe_SpaceElevatorPart_2_C->out:Desc_SpaceElevatorPart_2_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 16
+        },
+        {
+          "x": 34,
+          "y": 16
+        }
+      ]
+    },
+    {
+      "floorId": "floor-3",
+      "routeId": "recipe:Recipe_SteelBeam_C->recipe:Recipe_SpaceElevatorPart_2_C:Desc_SteelPlate_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": -2,
+          "y": 18
+        },
+        {
+          "x": 8,
+          "y": 18
+        }
+      ]
+    }
+  ],
+  "congestion": [
+    {
+      "floorId": "floor-1",
+      "crossings": 1,
+      "laneClashes": 0,
+      "overBlocks": 0,
+      "runs": 15,
+      "length": 286.667,
+      "score": 1
+    },
+    {
+      "floorId": "floor-2",
+      "crossings": 1,
+      "laneClashes": 1,
+      "overBlocks": 3,
+      "runs": 18,
+      "length": 626,
+      "score": 10
+    },
+    {
+      "floorId": "floor-3",
+      "crossings": 0,
+      "laneClashes": 0,
+      "overBlocks": 0,
+      "runs": 3,
+      "length": 30,
+      "score": 0
+    },
+    {
+      "floorId": "floor-4",
+      "crossings": 0,
+      "laneClashes": 0,
+      "overBlocks": 0,
+      "runs": 0,
+      "length": 0,
+      "score": 0
+    }
+  ],
+  "scores": [
+    {
+      "floorId": "floor-1",
+      "score": 102.867
+    },
+    {
+      "floorId": "floor-2",
+      "score": 1006.26
+    },
+    {
+      "floorId": "floor-3",
+      "score": 0.3
+    },
+    {
+      "floorId": "floor-4",
+      "score": 0
+    }
+  ]
+}

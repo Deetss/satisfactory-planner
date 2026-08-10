@@ -1,0 +1,1809 @@
+{
+  "modules": [
+    {
+      "id": "recipe:Recipe_IronRod_C",
+      "label": "Iron Rod",
+      "machines": 19,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Screw_C",
+      "label": "Screws",
+      "machines": 18,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotIron_C",
+      "label": "Iron Ingot",
+      "machines": 15,
+      "footprint": {
+        "width": 5,
+        "depth": 10,
+        "height": 8.5
+      }
+    },
+    {
+      "id": "recipe:Recipe_IronPlate_C",
+      "label": "Iron Plate",
+      "machines": 6,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotSteel_C",
+      "label": "Steel Ingot",
+      "machines": 5,
+      "footprint": {
+        "width": 10,
+        "depth": 10,
+        "height": 9
+      }
+    },
+    {
+      "id": "recipe:Recipe_ModularFrame_C",
+      "label": "Modular Frame",
+      "machines": 5,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_Wire_C",
+      "label": "Wire",
+      "machines": 5,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotCopper_C",
+      "label": "Copper Ingot",
+      "machines": 5,
+      "footprint": {
+        "width": 5,
+        "depth": 10,
+        "height": 8.5
+      }
+    },
+    {
+      "id": "recipe:Recipe_Concrete_C",
+      "label": "Concrete",
+      "machines": 4,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IronPlateReinforced_C",
+      "label": "Reinforced Iron Plate",
+      "machines": 4,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_SteelPipe_C",
+      "label": "Steel Pipe",
+      "machines": 4,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Plastic_C",
+      "label": "Plastic",
+      "machines": 4,
+      "footprint": {
+        "width": 10,
+        "depth": 22,
+        "height": 30
+      }
+    },
+    {
+      "id": "recipe:Recipe_CopperSheet_C",
+      "label": "Copper Sheet",
+      "machines": 3,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Rotor_C",
+      "label": "Rotor",
+      "machines": 3,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_SteelBeam_C",
+      "label": "Steel Beam",
+      "machines": 2,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Stator_C",
+      "label": "Stator",
+      "machines": 2,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_EncasedIndustrialBeam_C",
+      "label": "Encased Industrial Beam",
+      "machines": 2,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_CircuitBoard_C",
+      "label": "Circuit Board",
+      "machines": 2,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_Cable_C",
+      "label": "Cable",
+      "machines": 1,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Motor_C",
+      "label": "Motor",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_CrystalOscillator_C",
+      "label": "Crystal Oscillator",
+      "machines": 1,
+      "footprint": {
+        "width": 18,
+        "depth": 20,
+        "height": 11
+      }
+    },
+    {
+      "id": "recipe:Recipe_ModularFrameHeavy_C",
+      "label": "Heavy Modular Frame",
+      "machines": 1,
+      "footprint": {
+        "width": 18,
+        "depth": 20,
+        "height": 11
+      }
+    },
+    {
+      "id": "recipe:Recipe_QuartzCrystal_C",
+      "label": "Quartz Crystal",
+      "machines": 1,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Computer_C",
+      "label": "Computer",
+      "machines": 1,
+      "footprint": {
+        "width": 18,
+        "depth": 20,
+        "height": 11
+      }
+    },
+    {
+      "id": "recipe:Recipe_Quickwire_C",
+      "label": "Quickwire",
+      "machines": 1,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotCaterium_C",
+      "label": "Caterium Ingot",
+      "machines": 1,
+      "footprint": {
+        "width": 5,
+        "depth": 10,
+        "height": 8.5
+      }
+    },
+    {
+      "id": "recipe:Recipe_AILimiter_C",
+      "label": "AI Limiter",
+      "machines": 1,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "storage:Desc_IronPlate_C",
+      "label": "Iron Plate reserve",
+      "machines": 1,
+      "footprint": {
+        "width": 5,
+        "depth": 11,
+        "height": 8
+      }
+    }
+  ],
+  "floors": [
+    {
+      "id": "floor-1",
+      "gridWidth": 40,
+      "gridDepth": 80,
+      "role": "production"
+    }
+  ],
+  "placements": [
+    {
+      "moduleId": "recipe:Recipe_AILimiter_C",
+      "floorId": "floor-1",
+      "x": 64,
+      "y": 488,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "north",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_Cable_C",
+      "floorId": "floor-1",
+      "x": 104,
+      "y": 376,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "south",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_CircuitBoard_C",
+      "floorId": "floor-1",
+      "x": 64,
+      "y": 312,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Computer_C",
+      "floorId": "floor-1",
+      "x": 112,
+      "y": 312,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Concrete_C",
+      "floorId": "floor-1",
+      "x": 24,
+      "y": 200,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "north",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_CopperSheet_C",
+      "floorId": "floor-1",
+      "x": 16,
+      "y": 352,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "north",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_CrystalOscillator_C",
+      "floorId": "floor-1",
+      "x": 184,
+      "y": 360,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_EncasedIndustrialBeam_C",
+      "floorId": "floor-1",
+      "x": 40,
+      "y": 408,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "west",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_IngotCaterium_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 56,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "south",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_IngotCopper_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 280,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "north",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_IngotIron_C",
+      "floorId": "floor-1",
+      "x": 24,
+      "y": 144,
+      "orientation": 0,
+      "columns": 4,
+      "inputSide": "west",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_IngotSteel_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 232,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "north",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronPlateReinforced_C",
+      "floorId": "floor-1",
+      "x": 136,
+      "y": 376,
+      "orientation": 0,
+      "columns": 4,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronPlate_C",
+      "floorId": "floor-1",
+      "x": 24,
+      "y": 312,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "east",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronRod_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 488,
+      "orientation": 0,
+      "columns": 5,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_ModularFrameHeavy_C",
+      "floorId": "floor-1",
+      "x": 208,
+      "y": 416,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_ModularFrame_C",
+      "floorId": "floor-1",
+      "x": 144,
+      "y": 416,
+      "orientation": 0,
+      "columns": 5,
+      "inputSide": "east",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Motor_C",
+      "floorId": "floor-1",
+      "x": 168,
+      "y": 480,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Plastic_C",
+      "floorId": "floor-1",
+      "x": 40,
+      "y": 56,
+      "orientation": 0,
+      "columns": 4,
+      "inputSide": "west",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_QuartzCrystal_C",
+      "floorId": "floor-1",
+      "x": 72,
+      "y": 128,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "north",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_Quickwire_C",
+      "floorId": "floor-1",
+      "x": 0,
+      "y": 576,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_Rotor_C",
+      "floorId": "floor-1",
+      "x": 128,
+      "y": 472,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_Screw_C",
+      "floorId": "floor-1",
+      "x": 72,
+      "y": 440,
+      "orientation": 0,
+      "columns": 6,
+      "inputSide": "west",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_Stator_C",
+      "floorId": "floor-1",
+      "x": 72,
+      "y": 512,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "west",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_SteelBeam_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 400,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "north",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "recipe:Recipe_SteelPipe_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 536,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "west",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_Wire_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 432,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "north",
+      "outputSide": "east"
+    },
+    {
+      "moduleId": "storage:Desc_IronPlate_C",
+      "floorId": "floor-1",
+      "x": 8,
+      "y": 616,
+      "orientation": 0,
+      "columns": 1,
+      "inputSide": "west",
+      "outputSide": "east"
+    }
+  ],
+  "paths": [
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_AILimiter_C:Desc_CopperSheet_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 72,
+          "y": 478
+        },
+        {
+          "x": 72,
+          "y": 488
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_CircuitBoard_C:Desc_CopperSheet_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 54,
+          "y": 322
+        },
+        {
+          "x": 64,
+          "y": 322
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_CircuitBoard_C:Desc_Plastic_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 54,
+          "y": 318
+        },
+        {
+          "x": 64,
+          "y": 318
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_Computer_C:Desc_Plastic_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 102,
+          "y": 320
+        },
+        {
+          "x": 112,
+          "y": 320
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_Concrete_C:Desc_Stone_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 32,
+          "y": 190
+        },
+        {
+          "x": 32,
+          "y": 200
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_EncasedIndustrialBeam_C:Desc_Cement_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 30,
+          "y": 414
+        },
+        {
+          "x": 40,
+          "y": 414
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_EncasedIndustrialBeam_C:Desc_SteelPlate_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 30,
+          "y": 418
+        },
+        {
+          "x": 40,
+          "y": 418
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotCaterium_C:Desc_OreGold_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 13.333,
+          "y": 82
+        },
+        {
+          "x": 13.333,
+          "y": 72
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotCopper_C:Desc_OreCopper_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 270
+        },
+        {
+          "x": 16,
+          "y": 280
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotIron_C:Desc_OreIron_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 14,
+          "y": 164
+        },
+        {
+          "x": 24,
+          "y": 164
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotSteel_C:Desc_Coal_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 20,
+          "y": 222
+        },
+        {
+          "x": 20,
+          "y": 232
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotSteel_C:Desc_OreIron_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 222
+        },
+        {
+          "x": 24,
+          "y": 232
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_Plastic_C:Desc_LiquidOil_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 30,
+          "y": 68
+        },
+        {
+          "x": 40,
+          "y": 68
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_QuartzCrystal_C:Desc_RawQuartz_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 76,
+          "y": 118
+        },
+        {
+          "x": 76,
+          "y": 128
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_AILimiter_C->out:Desc_CircuitBoardHighSpeed_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 76,
+          "y": 488
+        },
+        {
+          "x": 76,
+          "y": 478
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Cable_C->recipe:Recipe_Computer_C:Desc_Cable_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 108,
+          "y": 376
+        },
+        {
+          "x": 108,
+          "y": 370
+        },
+        {
+          "x": 106,
+          "y": 370
+        },
+        {
+          "x": 106,
+          "y": 328
+        },
+        {
+          "x": 112,
+          "y": 328
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Cable_C->recipe:Recipe_CrystalOscillator_C:Desc_Cable_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 108,
+          "y": 376
+        },
+        {
+          "x": 108,
+          "y": 370
+        },
+        {
+          "x": 178,
+          "y": 370
+        },
+        {
+          "x": 178,
+          "y": 372
+        },
+        {
+          "x": 184,
+          "y": 372
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_CircuitBoard_C->recipe:Recipe_Computer_C:Desc_CircuitBoard_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 88,
+          "y": 320
+        },
+        {
+          "x": 100,
+          "y": 320
+        },
+        {
+          "x": 100,
+          "y": 324
+        },
+        {
+          "x": 112,
+          "y": 324
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Computer_C->out:Desc_Computer_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 136,
+          "y": 324
+        },
+        {
+          "x": 146,
+          "y": 324
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Concrete_C->recipe:Recipe_EncasedIndustrialBeam_C:Desc_Cement_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 32,
+          "y": 224
+        },
+        {
+          "x": 32,
+          "y": 230
+        },
+        {
+          "x": 34,
+          "y": 230
+        },
+        {
+          "x": 34,
+          "y": 414
+        },
+        {
+          "x": 40,
+          "y": 414
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_CopperSheet_C->recipe:Recipe_AILimiter_C:Desc_CopperSheet_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 376
+        },
+        {
+          "x": 24,
+          "y": 432
+        },
+        {
+          "x": 72,
+          "y": 432
+        },
+        {
+          "x": 72,
+          "y": 488
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_CopperSheet_C->recipe:Recipe_CircuitBoard_C:Desc_CopperSheet_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 376
+        },
+        {
+          "x": 24,
+          "y": 382
+        },
+        {
+          "x": 58,
+          "y": 382
+        },
+        {
+          "x": 58,
+          "y": 322
+        },
+        {
+          "x": 64,
+          "y": 322
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_CrystalOscillator_C->out:Desc_CrystalOscillator_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 208,
+          "y": 372
+        },
+        {
+          "x": 218,
+          "y": 372
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_EncasedIndustrialBeam_C->recipe:Recipe_ModularFrameHeavy_C:Desc_SteelPlateReinforced_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 52,
+          "y": 408
+        },
+        {
+          "x": 52,
+          "y": 402
+        },
+        {
+          "x": 202,
+          "y": 402
+        },
+        {
+          "x": 202,
+          "y": 422
+        },
+        {
+          "x": 208,
+          "y": 422
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotCaterium_C->recipe:Recipe_Quickwire_C:Desc_GoldIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 10.667,
+          "y": 72
+        },
+        {
+          "x": 10.667,
+          "y": 78
+        },
+        {
+          "x": -6,
+          "y": 78
+        },
+        {
+          "x": -6,
+          "y": 584
+        },
+        {
+          "x": 0,
+          "y": 584
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotCopper_C->recipe:Recipe_CopperSheet_C:Desc_CopperIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 304
+        },
+        {
+          "x": 16,
+          "y": 328
+        },
+        {
+          "x": 24,
+          "y": 328
+        },
+        {
+          "x": 24,
+          "y": 352
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotCopper_C->recipe:Recipe_Wire_C:Desc_CopperIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 304
+        },
+        {
+          "x": 16,
+          "y": 432
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotIron_C->recipe:Recipe_IronPlate_C:Desc_IronIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 36,
+          "y": 184
+        },
+        {
+          "x": 36,
+          "y": 190
+        },
+        {
+          "x": 46,
+          "y": 190
+        },
+        {
+          "x": 46,
+          "y": 326
+        },
+        {
+          "x": 40,
+          "y": 326
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotIron_C->recipe:Recipe_IronRod_C:Desc_IronIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 36,
+          "y": 184
+        },
+        {
+          "x": 36,
+          "y": 190
+        },
+        {
+          "x": 2,
+          "y": 190
+        },
+        {
+          "x": 2,
+          "y": 508
+        },
+        {
+          "x": 8,
+          "y": 508
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotSteel_C->recipe:Recipe_SteelBeam_C:Desc_SteelIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 232
+        },
+        {
+          "x": 16,
+          "y": 226
+        },
+        {
+          "x": 12,
+          "y": 226
+        },
+        {
+          "x": 12,
+          "y": 400
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotSteel_C->recipe:Recipe_SteelPipe_C:Desc_SteelIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 232
+        },
+        {
+          "x": 16,
+          "y": 226
+        },
+        {
+          "x": 2,
+          "y": 226
+        },
+        {
+          "x": 2,
+          "y": 548
+        },
+        {
+          "x": 8,
+          "y": 548
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronPlateReinforced_C->recipe:Recipe_CrystalOscillator_C:Desc_IronPlateReinforced_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 176,
+          "y": 384
+        },
+        {
+          "x": 180,
+          "y": 384
+        },
+        {
+          "x": 180,
+          "y": 376
+        },
+        {
+          "x": 184,
+          "y": 376
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronPlateReinforced_C->recipe:Recipe_ModularFrame_C:Desc_IronPlateReinforced_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 176,
+          "y": 384
+        },
+        {
+          "x": 198,
+          "y": 384
+        },
+        {
+          "x": 198,
+          "y": 420
+        },
+        {
+          "x": 192,
+          "y": 420
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronPlate_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronPlate_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 40,
+          "y": 330
+        },
+        {
+          "x": 88,
+          "y": 330
+        },
+        {
+          "x": 88,
+          "y": 382
+        },
+        {
+          "x": 136,
+          "y": 382
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_ModularFrame_C:Desc_IronRod_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 48,
+          "y": 508
+        },
+        {
+          "x": 198,
+          "y": 508
+        },
+        {
+          "x": 198,
+          "y": 428
+        },
+        {
+          "x": 192,
+          "y": 428
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Rotor_C:Desc_IronRod_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 48,
+          "y": 508
+        },
+        {
+          "x": 88,
+          "y": 508
+        },
+        {
+          "x": 88,
+          "y": 482
+        },
+        {
+          "x": 128,
+          "y": 482
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Screw_C:Desc_IronRod_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 48,
+          "y": 508
+        },
+        {
+          "x": 60,
+          "y": 508
+        },
+        {
+          "x": 60,
+          "y": 456
+        },
+        {
+          "x": 72,
+          "y": 456
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_ModularFrameHeavy_C->out:Desc_ModularFrameHeavy_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 232,
+          "y": 428
+        },
+        {
+          "x": 242,
+          "y": 428
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_ModularFrame_C->recipe:Recipe_ModularFrameHeavy_C:Desc_ModularFrame_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 192,
+          "y": 424
+        },
+        {
+          "x": 200,
+          "y": 424
+        },
+        {
+          "x": 200,
+          "y": 426
+        },
+        {
+          "x": 208,
+          "y": 426
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Motor_C->out:Desc_Motor_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 184,
+          "y": 488
+        },
+        {
+          "x": 194,
+          "y": 488
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Plastic_C->out:Desc_HeavyOilResidue_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 62,
+          "y": 80
+        },
+        {
+          "x": 62,
+          "y": 90
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Plastic_C->recipe:Recipe_CircuitBoard_C:Desc_Plastic_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 58,
+          "y": 80
+        },
+        {
+          "x": 58,
+          "y": 318
+        },
+        {
+          "x": 64,
+          "y": 318
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Plastic_C->recipe:Recipe_Computer_C:Desc_Plastic_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 58,
+          "y": 80
+        },
+        {
+          "x": 58,
+          "y": 86
+        },
+        {
+          "x": 106,
+          "y": 86
+        },
+        {
+          "x": 106,
+          "y": 320
+        },
+        {
+          "x": 112,
+          "y": 320
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_QuartzCrystal_C->recipe:Recipe_CrystalOscillator_C:Desc_QuartzCrystal_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 76,
+          "y": 144
+        },
+        {
+          "x": 76,
+          "y": 150
+        },
+        {
+          "x": 178,
+          "y": 150
+        },
+        {
+          "x": 178,
+          "y": 368
+        },
+        {
+          "x": 184,
+          "y": 368
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Quickwire_C->recipe:Recipe_AILimiter_C:Desc_HighSpeedWire_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 4,
+          "y": 576
+        },
+        {
+          "x": 4,
+          "y": 482
+        },
+        {
+          "x": 68,
+          "y": 482
+        },
+        {
+          "x": 68,
+          "y": 488
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Rotor_C->recipe:Recipe_Motor_C:Desc_Rotor_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 160,
+          "y": 480
+        },
+        {
+          "x": 164,
+          "y": 480
+        },
+        {
+          "x": 164,
+          "y": 486
+        },
+        {
+          "x": 168,
+          "y": 486
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 96,
+          "y": 440
+        },
+        {
+          "x": 96,
+          "y": 434
+        },
+        {
+          "x": 130,
+          "y": 434
+        },
+        {
+          "x": 130,
+          "y": 386
+        },
+        {
+          "x": 136,
+          "y": 386
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_ModularFrameHeavy_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 96,
+          "y": 440
+        },
+        {
+          "x": 96,
+          "y": 434
+        },
+        {
+          "x": 202,
+          "y": 434
+        },
+        {
+          "x": 202,
+          "y": 430
+        },
+        {
+          "x": 208,
+          "y": 430
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_Rotor_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 96,
+          "y": 440
+        },
+        {
+          "x": 96,
+          "y": 434
+        },
+        {
+          "x": 122,
+          "y": 434
+        },
+        {
+          "x": 122,
+          "y": 478
+        },
+        {
+          "x": 128,
+          "y": 478
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Stator_C->recipe:Recipe_Motor_C:Desc_Stator_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 96,
+          "y": 520
+        },
+        {
+          "x": 132,
+          "y": 520
+        },
+        {
+          "x": 132,
+          "y": 490
+        },
+        {
+          "x": 168,
+          "y": 490
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_SteelBeam_C->recipe:Recipe_EncasedIndustrialBeam_C:Desc_SteelPlate_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 412
+        },
+        {
+          "x": 28,
+          "y": 412
+        },
+        {
+          "x": 28,
+          "y": 418
+        },
+        {
+          "x": 40,
+          "y": 418
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_SteelPipe_C->recipe:Recipe_ModularFrameHeavy_C:Desc_SteelPipe_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 536
+        },
+        {
+          "x": 16,
+          "y": 530
+        },
+        {
+          "x": 202,
+          "y": 530
+        },
+        {
+          "x": 202,
+          "y": 434
+        },
+        {
+          "x": 208,
+          "y": 434
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_SteelPipe_C->recipe:Recipe_Stator_C:Desc_SteelPipe_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 16,
+          "y": 536
+        },
+        {
+          "x": 16,
+          "y": 530
+        },
+        {
+          "x": 66,
+          "y": 530
+        },
+        {
+          "x": 66,
+          "y": 522
+        },
+        {
+          "x": 72,
+          "y": 522
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Wire_C->recipe:Recipe_Cable_C:Desc_Wire_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 448
+        },
+        {
+          "x": 30,
+          "y": 448
+        },
+        {
+          "x": 30,
+          "y": 398
+        },
+        {
+          "x": 108,
+          "y": 398
+        },
+        {
+          "x": 108,
+          "y": 392
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Wire_C->recipe:Recipe_Stator_C:Desc_Wire_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 24,
+          "y": 448
+        },
+        {
+          "x": 48,
+          "y": 448
+        },
+        {
+          "x": 48,
+          "y": 518
+        },
+        {
+          "x": 72,
+          "y": 518
+        }
+      ]
+    }
+  ],
+  "congestion": [
+    {
+      "floorId": "floor-1",
+      "crossings": 16,
+      "laneClashes": 1,
+      "overBlocks": 3,
+      "runs": 55,
+      "length": 5550.667,
+      "score": 25
+    }
+  ],
+  "scores": [
+    {
+      "floorId": "floor-1",
+      "score": 2555.51
+    }
+  ]
+}

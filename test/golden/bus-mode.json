@@ -1,0 +1,369 @@
+{
+  "modules": [
+    {
+      "id": "recipe:Recipe_IronRod_C",
+      "label": "Iron Rod",
+      "machines": 10,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Screw_C",
+      "label": "Screws",
+      "machines": 10,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_IngotIron_C",
+      "label": "Iron Ingot",
+      "machines": 8,
+      "footprint": {
+        "width": 5,
+        "depth": 10,
+        "height": 8.5
+      }
+    },
+    {
+      "id": "recipe:Recipe_IronPlate_C",
+      "label": "Iron Plate",
+      "machines": 3,
+      "footprint": {
+        "width": 8,
+        "depth": 10,
+        "height": 6
+      }
+    },
+    {
+      "id": "recipe:Recipe_Rotor_C",
+      "label": "Rotor",
+      "machines": 3,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    },
+    {
+      "id": "recipe:Recipe_IronPlateReinforced_C",
+      "label": "Reinforced Iron Plate",
+      "machines": 2,
+      "footprint": {
+        "width": 9,
+        "depth": 16,
+        "height": 8
+      }
+    }
+  ],
+  "floors": [
+    {
+      "id": "floor-1",
+      "gridWidth": 24,
+      "gridDepth": 16,
+      "role": "production"
+    }
+  ],
+  "placements": [
+    {
+      "moduleId": "recipe:Recipe_IngotIron_C",
+      "floorId": "floor-1",
+      "x": 16,
+      "y": 16,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "south",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronPlateReinforced_C",
+      "floorId": "floor-1",
+      "x": 128,
+      "y": 64,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "north",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronPlate_C",
+      "floorId": "floor-1",
+      "x": 48,
+      "y": 24,
+      "orientation": 0,
+      "columns": 2,
+      "inputSide": "south",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_IronRod_C",
+      "floorId": "floor-1",
+      "x": 48,
+      "y": 64,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "north",
+      "outputSide": "north"
+    },
+    {
+      "moduleId": "recipe:Recipe_Rotor_C",
+      "floorId": "floor-1",
+      "x": 128,
+      "y": 32,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "south",
+      "outputSide": "south"
+    },
+    {
+      "moduleId": "recipe:Recipe_Screw_C",
+      "floorId": "floor-1",
+      "x": 88,
+      "y": 8,
+      "orientation": 0,
+      "columns": 3,
+      "inputSide": "south",
+      "outputSide": "south"
+    }
+  ],
+  "paths": [
+    {
+      "floorId": "floor-1",
+      "routeId": "in->recipe:Recipe_IngotIron_C:Desc_OreIron_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 26,
+          "y": 58
+        },
+        {
+          "x": 26,
+          "y": 48
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotIron_C->recipe:Recipe_IronPlate_C:Desc_IronIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 22,
+          "y": 48
+        },
+        {
+          "x": 22,
+          "y": 54
+        },
+        {
+          "x": 54,
+          "y": 54
+        },
+        {
+          "x": 54,
+          "y": 48
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IngotIron_C->recipe:Recipe_IronRod_C:Desc_IronIngot_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 22,
+          "y": 48
+        },
+        {
+          "x": 22,
+          "y": 56
+        },
+        {
+          "x": 58,
+          "y": 56
+        },
+        {
+          "x": 58,
+          "y": 64
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronPlateReinforced_C->out:Desc_IronPlateReinforced_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 144,
+          "y": 64
+        },
+        {
+          "x": 144,
+          "y": 54
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronPlate_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronPlate_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 58,
+          "y": 48
+        },
+        {
+          "x": 58,
+          "y": 56
+        },
+        {
+          "x": 136,
+          "y": 56
+        },
+        {
+          "x": 136,
+          "y": 64
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Rotor_C:Desc_IronRod_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 62,
+          "y": 64
+        },
+        {
+          "x": 62,
+          "y": 56
+        },
+        {
+          "x": 140,
+          "y": 56
+        },
+        {
+          "x": 140,
+          "y": 48
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_IronRod_C->recipe:Recipe_Screw_C:Desc_IronRod_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 62,
+          "y": 64
+        },
+        {
+          "x": 62,
+          "y": 56
+        },
+        {
+          "x": 98,
+          "y": 56
+        },
+        {
+          "x": 98,
+          "y": 48
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Rotor_C->out:Desc_Rotor_C",
+      "external": true,
+      "drawn": false,
+      "points": [
+        {
+          "x": 148,
+          "y": 48
+        },
+        {
+          "x": 148,
+          "y": 58
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_IronPlateReinforced_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 102,
+          "y": 48
+        },
+        {
+          "x": 102,
+          "y": 56
+        },
+        {
+          "x": 140,
+          "y": 56
+        },
+        {
+          "x": 140,
+          "y": 64
+        }
+      ]
+    },
+    {
+      "floorId": "floor-1",
+      "routeId": "recipe:Recipe_Screw_C->recipe:Recipe_Rotor_C:Desc_IronScrew_C",
+      "external": false,
+      "drawn": false,
+      "points": [
+        {
+          "x": 102,
+          "y": 48
+        },
+        {
+          "x": 102,
+          "y": 54
+        },
+        {
+          "x": 144,
+          "y": 54
+        },
+        {
+          "x": 144,
+          "y": 48
+        }
+      ]
+    }
+  ],
+  "congestion": [
+    {
+      "floorId": "floor-1",
+      "crossings": 3,
+      "laneClashes": 4,
+      "overBlocks": 0,
+      "runs": 10,
+      "length": 474,
+      "score": 15
+    }
+  ],
+  "scores": [
+    {
+      "floorId": "floor-1",
+      "score": 1504.74
+    }
+  ]
+}

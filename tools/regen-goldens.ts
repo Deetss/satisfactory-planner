@@ -36,15 +36,18 @@ import { beforeAll, expect, test } from 'vitest'
 import { arrangeStack, autoArrange } from '../src/components/LayoutCanvas'
 import type { ArrangePlan } from '../src/components/LayoutCanvas'
 import type { ArrangeMode, Growth } from '../src/layout/bus'
+import { packByColumns } from '../src/layout/columns'
 import { analyseFloor } from '../src/layout/congestion'
 import { useLayoutStore } from '../src/layout/layoutStore'
 import { modulesFromPlan } from '../src/layout/modules'
+import { EDGE_M, packByStage } from '../src/layout/pack'
+import type { PackedModule } from '../src/layout/pack'
 import { routePaths } from '../src/layout/paths'
 import { deriveRoutes } from '../src/layout/routes'
 import type { Route } from '../src/layout/routes'
 import { storageModules } from '../src/layout/storage'
 import type { Reserve } from '../src/layout/storage'
-import { scoreFloor } from '../src/layout/tidy'
+import { flowsOf, scoreFloor } from '../src/layout/tidy'
 import {
   DEFAULT_FLOOR_HEIGHT_M,
   FOUNDATION_M,
@@ -174,7 +177,7 @@ const FIXTURES: Fixture[] = [
         Desc_CrystalOscillator_C: 1,
         Desc_CircuitBoardHighSpeed_C: 2,
       },
-      [{ name: 'Ground', gridWidth: 24, gridDepth: 16 }],
+      [{ name: 'Ground', gridWidth: 40, gridDepth: 80 }],
       [
         { item: 'Desc_IronPlate_C', mode: 'fixed', quantity: 500, bufferMinutes: 60 },
         { item: 'Desc_Cable_C', mode: 'excess', quantity: 0, bufferMinutes: 30 },
@@ -208,9 +211,9 @@ const FIXTURES: Fixture[] = [
         Desc_Motor_C: 5,
       },
       [
-        { name: 'Ground', gridWidth: 10, gridDepth: 8 },
-        { name: 'Level 2', gridWidth: 10, gridDepth: 8 },
-        { name: 'Level 3', gridWidth: 10, gridDepth: 8 },
+        { name: 'Ground', gridWidth: 14, gridDepth: 14 },
+        { name: 'Level 2', gridWidth: 14, gridDepth: 14 },
+        { name: 'Level 3', gridWidth: 14, gridDepth: 14 },
         { name: 'Stores', gridWidth: 8, gridDepth: 8, role: 'storage' },
       ],
       [
@@ -246,7 +249,7 @@ const FIXTURES: Fixture[] = [
         Desc_IronPlateReinforced_C: 10,
         Desc_Rotor_C: 10,
       },
-      [{ name: 'Ground', gridWidth: 24, gridDepth: 12 }],
+      [{ name: 'Ground', gridWidth: 24, gridDepth: 16 }],
     ),
     reproduces: [
       'The Produce panel listing Reinforced Iron Plate and Rotor at 10 per minute each.',
@@ -435,6 +438,114 @@ function observe(
   }
 }
 
+/** One candidate packing, as the tournament built it. */
+interface Candidate {
+  name: string
+  /** Blocks this packing could not fit, which is what decides the field. */
+  overflow: number
+  /** Blocks it put exactly where they finished, so the polish never moved them. */
+  matched: number
+}
+
+/** Which candidate packing survived the tournament, and by how much. */
+interface Attribution {
+  /** Blocks that landed on the arranged floor. */
+  total: number
+  /** Every candidate, best survivor count first. */
+  tally: Candidate[]
+}
+
+/**
+ * Reads back which packer put the blocks where they ended up.
+ *
+ * OQ-2 asks whether the dense golden guards `packByColumns` or the `packByStage`
+ * fallback, and the tournament will not say: `ArrangeResult` carries no winning
+ * seed and D-04 declines to add one so `LayoutCanvas.tsx` stays untouched before
+ * its Phase 9 move. So the candidates are re-run here against the same bounds,
+ * the same flows and the same lane the tournament used, and each one's raw
+ * positions are matched against what actually landed.
+ *
+ * A match is a block the polish rounds never had to move, so the counts are a
+ * plurality rather than a majority: on a tangled floor `nudgeTangled` relocates
+ * most of what it is given. The candidate still holding placements at the end is
+ * the one the tournament kept, and a candidate holding none of them is not.
+ *
+ * Observed and not asserted, as the plan asks: a run that cannot tell the
+ * candidates apart says so in the document rather than failing. Pure reads of
+ * pure functions, no store writes.
+ */
+function attribute(
+  fixture: Fixture,
+  modules: FactoryModule[],
+  routes: Route[],
+): Attribution | null {
+  // Only the compact single floor path is reproducible from outside. A stack is
+  // arranged floor by floor off the previous floor's overflow, and bus never
+  // reaches the tournament at all.
+  if (fixture.arrange !== 'floor' || fixture.mode === 'bus') return null
+
+  const layout = useLayoutStore.getState()
+  const floor = layout.floors.find((f) => f.id === layout.activeFloorId)
+  if (!floor) return null
+
+  // The same three numbers arrangeOnto derives, derived the same way. The lane
+  // is the literal the arrange plan carried, and the compact border is only the
+  // shortfall because the packers already leave the lane around an edge block.
+  const service = 8
+  const edge = Math.max(0, EDGE_M - service)
+  const bounds = {
+    width: Math.max(0, floor.gridWidth * FOUNDATION_M - edge * 2),
+    depth: Math.max(0, floor.gridDepth * FOUNDATION_M - edge * 2),
+  }
+  const flows = flowsOf(routes)
+
+  // arrangeOnto sorts by id before it packs, so an unsorted list here would hand
+  // the packers a different problem than the one the tournament solved.
+  const sorted = modules.slice().sort((a, b) => a.id.localeCompare(b.id))
+
+  const matches = (packed: PackedModule[]) =>
+    packed.filter((item) => {
+      const placement = layout.placements[item.module.id]
+      return (
+        placement !== undefined &&
+        placement.floorId === floor.id &&
+        placement.x === item.x + edge &&
+        placement.y === item.y + edge
+      )
+    }).length
+
+  const tally: Candidate[] = []
+  for (const seed of ['depth', 'name', 'shallow'] as const) {
+    const candidate = packByColumns(sorted, { bounds, flows, service, seed })
+    // Null means this seed produced nothing at all, so the tournament never saw
+    // it and the document should not list it as a contender.
+    if (candidate) {
+      tally.push({
+        name: `\`packByColumns\` on the ${seed} seed`,
+        overflow: candidate.overflow.length,
+        matched: matches(candidate.packed),
+      })
+    }
+  }
+  const stage = packByStage(sorted, { bounds, flows, service })
+  tally.push({
+    name: '`packByStage`',
+    overflow: stage.overflow.length,
+    matched: matches(stage.packed),
+  })
+
+  // A stable sort, so a tie keeps the tournament's own arrival order: the three
+  // column seeds in the order it tries them, then the stage packer.
+  tally.sort((a, b) => b.matched - a.matched)
+
+  return {
+    total: Object.values(layout.placements).filter(
+      (placement) => placement.floorId === floor.id,
+    ).length,
+    tally,
+  }
+}
+
 /** What one fixture's run produced, for the fixtures document. */
 interface Recorded {
   fixture: Fixture
@@ -445,6 +556,7 @@ interface Recorded {
   placed: number
   overflow: number
   floors: { name: string; gridWidth: number; gridDepth: number; role: string }[]
+  packing: Attribution | null
 }
 
 function regenerate(fixture: Fixture): Recorded {
@@ -539,6 +651,7 @@ function regenerate(fixture: Fixture): Recorded {
       gridDepth: floor.gridDepth,
       role: floorRole(floor),
     })),
+    packing: attribute(fixture, modules, routes),
   }
 }
 
@@ -564,6 +677,70 @@ function fixtureModule(records: Recorded[]): string {
 // one run, and editing one silently decouples it from the other two.
 
 ${body}`
+}
+
+/**
+ * The fixtures document's answer to OQ-2: which packer this golden guards.
+ *
+ * Written from the tally rather than from a claim, so the margin is visible.
+ * A reader who wants the dense fixture to guard the column packer and finds the
+ * stage packer at the top of the table knows to widen the floor and regenerate,
+ * which is the loop the plan describes.
+ */
+function attributionSection(record: Recorded): string {
+  const { fixture, packing } = record
+
+  if (fixture.mode === 'bus') {
+    return 'Arranged by `packAsBus`, which short circuits the candidate tournament, so this golden guards the corridor rather than the packers.'
+  }
+
+  if (!packing) {
+    return [
+      'Arranged by `arrangeStack`, one floor at a time off the previous floor\'s',
+      'overflow, so no single candidate packing can be matched against the',
+      'result the way the single floor fixtures are. Nothing went to the tray,',
+      'so every floor had a candidate field to choose from.',
+    ].join(' ')
+  }
+
+  const table = [
+    '| Candidate | Blocks it trayed | Placements it still holds |',
+    '|---|---|---|',
+    ...packing.tally.map(
+      (candidate) =>
+        `| ${candidate.name} | ${candidate.overflow} | ${candidate.matched} of ${packing.total} |`,
+    ),
+  ].join('\n')
+
+  const best = packing.tally[0]
+  const verdict =
+    best.matched === 0
+      ? [
+          'Every candidate was moved off its own positions by the polish rounds,',
+          'so the surviving placements cannot say which packing won. Nothing in',
+          'the golden is wrong; the attribution is simply unavailable this run.',
+        ].join(' ')
+      : best.name.includes('packByColumns')
+        ? [
+            `${best.name} still holds ${best.matched} of them and \`packByStage\``,
+            `holds ${packing.tally.find((c) => c.name === '`packByStage`')?.matched ?? 0},`,
+            'so this golden guards the column packer rather than the stage',
+            'fallback, which is what OQ-2 asked for.',
+          ].join(' ')
+        : [
+            '`packByStage` holds more of them than any column seed, so this golden',
+            'guards the stage fallback. Widen the floor\'s `gridWidth` and run',
+            '`npm run goldens` again if the column packer is the path you meant',
+            'to guard.',
+          ].join(' ')
+
+  return `Every candidate the tournament builds was produced and measured here against the same bounds, flows and lane it used, then matched against what actually landed on the floor.
+
+${table}
+
+A held placement is one the polish rounds never had to move, so these are pluralities and not majorities: \`nudgeTangled\` relocates most of a tangled floor. ${verdict}
+
+Which seed the tournament itself picked is not reported anywhere: \`ArrangeResult\` carries no winner and D-04 declines to add one so \`LayoutCanvas.tsx\` stays untouched before its Phase 9 move. This table is a reading of the result, not a value the engine emitted.`
 }
 
 /** The fixtures document, written from the same run so it cannot drift. */
@@ -592,17 +769,7 @@ function fixtureDoc(records: Recorded[]): string {
       `| Fragment length | ${record.fragment.length} characters |`,
     ].join('\n')
 
-    const packer =
-      fixture.mode === 'bus'
-        ? 'Arranged by `packAsBus`, which short circuits the candidate tournament, so this golden guards the corridor rather than the packers.'
-        : [
-            'Nothing went to the tray, so the tournament had a non-empty candidate',
-            'field and this golden captures a polished packing rather than the',
-            'degenerate fallback that fires only when every packer returns nothing.',
-            'Which seed won is not recorded: naming it would mean adding a field to',
-            '`ArrangeResult`, which D-04 declines so `LayoutCanvas.tsx` stays',
-            'untouched before its Phase 9 move.',
-          ].join(' ')
+    const packer = attributionSection(record)
 
     const caveat =
       fixture.mode === 'bus'

@@ -44,6 +44,9 @@ export const PLAN_CODE_VERSION = 2
 export const MAX_PLAN_CODE_CHARS = 1_000_000
 
 /**
+ * WIRE FORMAT. The order below is frozen by the v2 links already sent. Append
+ * only, never insert, never reorder, never dedupe.
+ *
  * Wire order, and not the same order as `SIDES` in `../layout/types`.
  *
  * Index 0 is north here and west there. Every placement in every link already
@@ -52,11 +55,21 @@ export const MAX_PLAN_CODE_CHARS = 1_000_000
  * quarter turn. It stays local and it stays in this order.
  */
 const SIDES: Side[] = ['north', 'east', 'south', 'west']
+/**
+ * WIRE FORMAT. The order below is frozen by the v2 links already sent, which
+ * carry an objective as an index into this list. Append only, never insert,
+ * never reorder, never dedupe.
+ */
 const OBJECTIVES: PlannerSnapshot['objective'][] = [
   'resources',
   'power',
   'machines',
 ]
+/**
+ * WIRE FORMAT. The order below is frozen by the v2 links already sent, which
+ * carry a reserve mode as an index into this list. Append only, never insert,
+ * never reorder, never dedupe.
+ */
 const RESERVE_MODES: Reserve['mode'][] = ['fixed', 'excess']
 
 /**
@@ -144,6 +157,10 @@ const unpackMap = (
     Object.entries(map ?? {}).map(([key, value]) => [unpack(key), value]),
   )
 
+/**
+ * WIRE FORMAT. Slot positions are frozen by the v2 links already sent. Append
+ * only at the end, never insert, never reorder, never repurpose a slot.
+ */
 type FloorCode = [
   string,
   number,
@@ -154,6 +171,10 @@ type FloorCode = [
   /** 1 when the floor is dedicated to storage. Absent means production. */
   number?,
 ]
+/**
+ * WIRE FORMAT. Slot positions are frozen by the v2 links already sent. Append
+ * only at the end, never insert, never reorder, never repurpose a slot.
+ */
 type PlacementCode = [
   string,
   number,
@@ -166,10 +187,22 @@ type PlacementCode = [
   /** 1 when the machines are mirrored. Absent means not. */
   number?,
 ]
+/**
+ * WIRE FORMAT. Slot positions are frozen by the v2 links already sent. Append
+ * only at the end, never insert, never reorder, never repurpose a slot.
+ */
 type ReserveCode = [string, number, number, number]
-/** A hand-carried link as its three parts, so no key has to be parsed twice. */
+/**
+ * WIRE FORMAT. Slot positions are frozen by the v2 links already sent. Append
+ * only at the end, never insert, never reorder, never repurpose a slot.
+ *
+ * A hand-carried link as its three parts, so no key has to be parsed twice.
+ */
 type ManualCode = [string, string, string]
 /**
+ * WIRE FORMAT. Slot positions are frozen by the v2 links already sent. Append
+ * only at the end, never insert, never reorder, never repurpose a slot.
+ *
  * A hand-drawn run: its two module codes, its item, each end as a side index
  * and a distance along that face (-1 when the end was left to the router), then
  * the corners as a flat list of metres.
@@ -185,7 +218,12 @@ type DrawnCode = [
   number[],
 ]
 
-/** A fitting: kind, floor index, the run it sits on, and where. */
+/**
+ * WIRE FORMAT. Slot positions are frozen by the v2 links already sent. Append
+ * only at the end, never insert, never reorder, never repurpose a slot.
+ *
+ * A fitting: kind, floor index, the run it sits on, and where.
+ */
 type FittingCode = [number, number, string, string, string, number, number]
 
 interface PlanCode {

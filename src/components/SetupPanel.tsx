@@ -25,7 +25,7 @@ import { Panel } from './Panel'
 import { Segmented } from './Segmented'
 import { PlanFilePanel } from './PlanFilePanel'
 
-const OBJECTIVES: {
+const OBJECTIVE_CHOICES: {
   value: Objective
   label: string
   summary: string
@@ -230,13 +230,15 @@ export function SetupPanel({ resourcesInUse }: Props) {
       <Panel
         title="Optimize for"
         defaultOpen
-        summary={OBJECTIVES.find((o) => o.value === state.objective)?.summary}
+        summary={
+          OBJECTIVE_CHOICES.find((o) => o.value === state.objective)?.summary
+        }
       >
         <Segmented
           label="What the solver should minimize"
           value={state.objective}
           onChange={state.setObjective}
-          options={OBJECTIVES.map((o) => ({
+          options={OBJECTIVE_CHOICES.map((o) => ({
             value: o.value,
             label: o.label,
             title: o.hint,

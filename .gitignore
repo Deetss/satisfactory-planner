@@ -7,5 +7,10 @@ Exports/
 .remember/
 .playwright-mcp/
 
+# Playwright run output. perf/baseline.json is the committed artifact; these are
+# per run scratch and the report is a whole static site.
+test-results/
+playwright-report/
+
 # GSD planning artifacts: kept local, not published
 .planning/

@@ -29,7 +29,7 @@
  * by being run rather than by being typechecked.
  */
 import { writeFileSync, readFileSync } from 'node:fs'
-import { test, type Browser, type Page } from '@playwright/test'
+import { test, type Browser, type Locator, type Page } from '@playwright/test'
 import { DENSE_COMPACT } from '../test/fixtures/plans'
 
 /**
@@ -122,25 +122,82 @@ async function stopSampling(page: Page): Promise<number[]> {
 }
 
 /**
+ * The budget for loading the fixture and solving it, which is the slow part:
+ * HiGHS is WASM and the CPU throttle from the previous run is still on the
+ * session while the next run loads.
+ */
+const LOAD_TIMEOUT_MS = 120_000
+
+/** The budget for the UI that follows a returned plan, which is not slow. */
+const READY_TIMEOUT_MS = 30_000
+
+/**
+ * Playwright defaults `actionTimeout` to no limit, so an unbounded wait here
+ * does not fail when the fixture breaks, it hangs until the 15 minute test
+ * timeout and then names a locator rather than a cause. Every readiness wait is
+ * bounded for that reason, and `waitFor` carries no message of its own, hence
+ * the rethrow. The timeout is set per wait rather than globally: a global
+ * `actionTimeout` would also apply to the measured gestures.
+ */
+async function waitReady(
+  locator: Locator,
+  meaning: string,
+  timeout = READY_TIMEOUT_MS,
+): Promise<void> {
+  try {
+    await locator.waitFor({ timeout })
+  } catch (cause) {
+    throw new Error(meaning, { cause })
+  }
+}
+
+/**
  * Put the app back to the state every run must start from.
  *
- * Clearing storage is not housekeeping. Both the layout and the tab are
- * persisted, so a plain reload would hand run 2 the blocks run 1 arranged and
- * measure a different gesture under the same name. Clearing also returns the
- * app to the Setup tab, which is why the Layout tab is selected here every time
- * rather than once.
+ * The app persists itself through two channels and a run has to be cut off from
+ * both, because an arrange writes to both. localStorage carries the layout and
+ * the open tab. The address bar carries a whole factory, placements included:
+ * `urlState.ts` mirrors every store commit into the fragment on a 400ms
+ * debounce, and `startUrlSync` reads that fragment back before anything else,
+ * so clearing storage alone restores nothing. Miss the second channel and run 2
+ * inherits the blocks run 1 arranged, the tray is empty, and this function
+ * waits for a badge that will never render.
+ *
+ * The trip through `about:blank` is the reset. A reload keeps the arranged
+ * fragment the last run left in the address bar, and a `goto` differing from
+ * the current URL only in its fragment is a same-document navigation that would
+ * not reload at all. Tearing the document down is also what discards the
+ * pending debounced write, which would otherwise land after the clear and put
+ * the arranged fragment back. What follows is a real load of the pristine link,
+ * so runs 2 and 3 see exactly what run 1 saw.
+ *
+ * The clear also returns the app to the Setup tab, which is why the Layout tab
+ * is selected here every time rather than once.
  */
 async function openFixture(page: Page): Promise<void> {
   await page.evaluate(() => localStorage.clear())
-  await page.reload()
+  await page.goto('about:blank', { timeout: READY_TIMEOUT_MS })
+  await page.goto(`/#${DENSE_COMPACT}`, { timeout: LOAD_TIMEOUT_MS })
   // The solver runs off the initial render; this chip is the first proof it
   // returned a plan rather than an error.
-  await page.locator('.chip', { hasText: 'machines' }).waitFor({ timeout: 120_000 })
-  await page.locator('.tabs__tab--layout').click()
-  await page.locator('.layout__scroll').waitFor()
+  await waitReady(
+    page.locator('.chip', { hasText: 'machines' }),
+    'The solver never returned a plan for the dense fixture.',
+    LOAD_TIMEOUT_MS,
+  )
+  await page.locator('.tabs__tab--layout').click({ timeout: READY_TIMEOUT_MS })
+  await waitReady(
+    page.locator('.layout__scroll'),
+    'The Layout tab never rendered its canvas.',
+  )
   // The tray count on the arrange button proves the modules were derived. The
   // fixture link carries a plan and no arrangement, so every block starts here.
-  await page.locator('.btngroup .btn .badge').first().waitFor()
+  await waitReady(
+    page.locator('.btngroup .btn .badge').first(),
+    'The arrange button carried no tray count, so the tray was empty and the ' +
+      "modules were not derived. The reset most likely left a previous run's " +
+      'arranged placements in place.',
+  )
 }
 
 /**
@@ -229,7 +286,9 @@ test('records the throttled frame time baseline for the dense fixture', async ({
 }) => {
   test.setTimeout(15 * 60_000)
 
-  await page.goto(`/#${DENSE_COMPACT}`)
+  // openFixture navigates for itself; this first load only gives its
+  // localStorage clear an origin to run on.
+  await page.goto(`/#${DENSE_COMPACT}`, { timeout: LOAD_TIMEOUT_MS })
   const client = await page.context().newCDPSession(page)
 
   const runs: Metrics[] = []

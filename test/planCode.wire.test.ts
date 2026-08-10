@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { decodePlanCode } from '../src/state/planCode'
+import { decodePlanCode, PLAN_CODE_VERSION } from '../src/state/planCode'
 
 /**
  * Six v2 share strings frozen against what they mean.
@@ -546,3 +546,89 @@ test('two reserves and two fittings still hold their modes and their kinds', () 
 })
 
 // Section two: the codec version and the three wire arrays.
+
+/**
+ * The three arrays are module private, so there is no `toEqual` to write
+ * against them. Each is pinned by decoding a hand written code that carries
+ * every index of it, which fixes the order and the length together without
+ * exporting anything.
+ */
+const SIDES_AT_EVERY_INDEX =
+  '{"v":2,"t":{},"o":0,"r":8,"z":8,"A":0,"F":[["G",12,12,0,0,0]],' +
+  '"P":[["rA",0,0,0,0,1,0,0],["rB",0,0,0,0,1,1,1],' +
+  '["rC",0,0,0,0,1,2,2],["rD",0,0,0,0,1,3,3]]}'
+
+const SIDE_PAST_THE_END =
+  '{"v":2,"t":{},"o":0,"r":8,"z":8,"A":0,"F":[["G",12,12,0,0,0]],' +
+  '"P":[["rE",0,0,0,0,1,4,4]]}'
+
+const OBJECTIVE_AT_0 = '{"v":2,"t":{},"o":0,"r":8,"z":8,"A":0,"F":[],"P":[]}'
+const OBJECTIVE_AT_1 = '{"v":2,"t":{},"o":1,"r":8,"z":8,"A":0,"F":[],"P":[]}'
+const OBJECTIVE_AT_2 = '{"v":2,"t":{},"o":2,"r":8,"z":8,"A":0,"F":[],"P":[]}'
+const OBJECTIVE_PAST_THE_END =
+  '{"v":2,"t":{},"o":3,"r":8,"z":8,"A":0,"F":[],"P":[]}'
+
+const RESERVE_MODES_AT_EVERY_INDEX =
+  '{"v":2,"t":{},"o":0,"r":8,"z":8,"A":0,"F":[["G",12,12,0,0,0]],"P":[],' +
+  '"R":[["Water",0,0,0],["Coal",1,0,0]]}'
+
+const RESERVE_MODE_PAST_THE_END =
+  '{"v":2,"t":{},"o":0,"r":8,"z":8,"A":0,"F":[["G",12,12,0,0,0]],"P":[],' +
+  '"R":[["Water",2,0,0]]}'
+
+test('the codec version is still 2, which is what old links are read through', () => {
+  // A bump says older codes cannot be read any more, and every v2 link in the
+  // wild is an older code.
+  expect(PLAN_CODE_VERSION).toBe(2)
+})
+
+test('the wire order of the side list is frozen at north, east, south, west', () => {
+  // The layout engine's side list starts at west, so a dedupe of the two would
+  // make index 1 below decode to north instead of east. All four indices are
+  // asserted on both slots because the decoder falls back rather than throwing
+  // on an index it cannot reach, so a shortened list would decode index 3
+  // correctly by luck on one slot alone.
+  const placements = decodePlanCode(SIDES_AT_EVERY_INDEX).layout.placements
+
+  expect(placements['recipe:Recipe_A_C'].inputSide).toBe('north')
+  expect(placements['recipe:Recipe_A_C'].outputSide).toBe('north')
+  expect(placements['recipe:Recipe_B_C'].inputSide).toBe('east')
+  expect(placements['recipe:Recipe_B_C'].outputSide).toBe('east')
+  expect(placements['recipe:Recipe_C_C'].inputSide).toBe('south')
+  expect(placements['recipe:Recipe_C_C'].outputSide).toBe('south')
+  expect(placements['recipe:Recipe_D_C'].inputSide).toBe('west')
+  expect(placements['recipe:Recipe_D_C'].outputSide).toBe('west')
+})
+
+test('a fifth side appended to the list would change what index 4 means', () => {
+  // Index 4 is past the end today, so it lands on the two documented
+  // fallbacks. Appending a side would give it a value instead, which is the
+  // only way an append is observable from outside the module.
+  const placements = decodePlanCode(SIDE_PAST_THE_END).layout.placements
+
+  expect(placements['recipe:Recipe_E_C'].inputSide).toBe('west')
+  expect(placements['recipe:Recipe_E_C'].outputSide).toBe('east')
+})
+
+test('the wire order of the objective list is frozen at resources, power, machines', () => {
+  expect(decodePlanCode(OBJECTIVE_AT_0).plan.objective).toBe('resources')
+  expect(decodePlanCode(OBJECTIVE_AT_1).plan.objective).toBe('power')
+  expect(decodePlanCode(OBJECTIVE_AT_2).plan.objective).toBe('machines')
+})
+
+test('a fourth objective appended to the list would change what index 3 means', () => {
+  expect(decodePlanCode(OBJECTIVE_PAST_THE_END).plan.objective).toBe('resources')
+})
+
+test('the wire order of the reserve mode list is frozen at fixed, excess', () => {
+  const reserves = decodePlanCode(RESERVE_MODES_AT_EVERY_INDEX).layout.reserves
+
+  expect(reserves[0].mode).toBe('fixed')
+  expect(reserves[1].mode).toBe('excess')
+})
+
+test('a third reserve mode appended to the list would change what index 2 means', () => {
+  const reserves = decodePlanCode(RESERVE_MODE_PAST_THE_END).layout.reserves
+
+  expect(reserves[0].mode).toBe('fixed')
+})

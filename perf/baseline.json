@@ -1,0 +1,46 @@
+{
+  "environment": {
+    "playwright": "1.62.1",
+    "chromium": "151.0.7922.34",
+    "platform": "linux",
+    "node": "v25.9.0",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "cpuThrottlingRate": 4
+  },
+  "recordedAt": "2026-08-10T17:56:17.297Z",
+  "fixture": "dense-compact",
+  "gesture": {
+    "wheelEvents": 60,
+    "wheelDelta": 30.8,
+    "dragSteps": 40,
+    "arrangeButton": "This floor"
+  },
+  "runs": [
+    {
+      "zoomP95Ms": 16.80000000000291,
+      "dragP95Ms": 933.2999999999993,
+      "arrangeMs": 8256.100000023842
+    },
+    {
+      "zoomP95Ms": 16.700000000004366,
+      "dragP95Ms": 983.2999999999993,
+      "arrangeMs": 8084.400000035763
+    },
+    {
+      "zoomP95Ms": 16.700000000004366,
+      "dragP95Ms": 950,
+      "arrangeMs": 7709.599999964237
+    }
+  ],
+  "best": {
+    "zoomP95Ms": 16.700000000004366,
+    "dragP95Ms": 933.2999999999993,
+    "arrangeMs": 7709.599999964237
+  },
+  "gate": {
+    "maxRegressionPct": 20
+  }
+}

@@ -315,8 +315,8 @@ test('records the throttled frame time baseline for the dense fixture', async ({
   // or throttle rate invalidates the comparison outright, and is not a
   // regression to be explained.
   const baseline = {
-    recordedAt: new Date().toISOString(),
     environment: environment(browser),
+    recordedAt: new Date().toISOString(),
     fixture: 'dense-compact',
     gesture: {
       wheelEvents: WHEEL.events,

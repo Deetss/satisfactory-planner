@@ -64,6 +64,22 @@ const RUNS = 3
 /** Preferred first. `All floors` only exists when the plan has more than one floor. */
 const ARRANGE_LABELS = ['All floors', 'This floor']
 
+/**
+ * The fewest frames a recorded p95 may be computed from.
+ *
+ * Three, which is far under what a nearest-rank p95 wants, and deliberately so.
+ * The drag blocks the main thread in roughly 900 ms chunks, which starves the
+ * rAF sampler, so a small sample there is the signal rather than a fault, and a
+ * bar set at the textbook twenty would refuse to record the gesture this
+ * baseline most wants recorded. The narrower job this constant has is to stop a
+ * sample that is not a measurement from becoming a number: an empty sample used
+ * to yield 0, and `best` is a `Math.min` across runs, so one degenerate run sets
+ * the bar for all three and a zero reads as a perfect score. Every sample size
+ * is written into the baseline beside its p95, so the bar can be raised later
+ * against real counts rather than against a guess.
+ */
+const MIN_SAMPLES = 3
+
 interface Metrics {
   zoomP95Ms: number
   dragP95Ms: number
@@ -71,12 +87,36 @@ interface Metrics {
 }
 
 /**
+ * A run also carries how many frames each p95 was computed from, because a p95
+ * over a handful of frames is a maximum wearing a percentile's name and the
+ * number alone does not say which it is.
+ */
+interface Run extends Metrics {
+  dragFrames: number
+  zoomFrames: number
+}
+
+/**
  * The 95th percentile, never the median. The median hides exactly the tail that
  * reads as stutter, which is the thing this baseline exists to catch.
+ *
+ * Throws rather than falling back to a zero, for the reason point 4 of the
+ * header gives for `arrangeLabel`. `best` is a `Math.min`, so a zero from one
+ * degenerate run is not outvoted by the two honest ones, it becomes the
+ * recorded best, and Phase 12's 20 percent band against a zero either divides
+ * by zero or calls every real measurement an infinite regression.
  */
-function p95(frames: number[]): number {
+function p95(frames: number[], gesture: string): number {
+  if (frames.length < MIN_SAMPLES) {
+    throw new Error(
+      `The ${gesture} sampled ${frames.length} frames, fewer than the ` +
+        `${MIN_SAMPLES} a percentile needs. That is not a fast gesture, it is a ` +
+        'gesture that did not run, and a number taken from it would enter the ' +
+        'baseline as an improvement.',
+    )
+  }
   const sorted = [...frames].sort((a, b) => a - b)
-  return sorted[Math.max(0, Math.ceil(sorted.length * 0.95) - 1)] ?? 0
+  return sorted[Math.ceil(sorted.length * 0.95) - 1]!
 }
 
 /**
@@ -231,7 +271,7 @@ async function arrangeLabel(page: Page): Promise<string> {
  * sweep because the sweep ends at 4x, and the drag is specified at the reset
  * zoom so the two numbers stay independent.
  */
-async function measure(page: Page, label: string): Promise<Metrics> {
+async function measure(page: Page, label: string): Promise<Run> {
   // Timed inside the page so the synchronous click handler and React's discrete
   // event flush are both inside the window. This is main thread block time and
   // not time to first pixel, which is the number Phase 11's pending state aims
@@ -254,7 +294,8 @@ async function measure(page: Page, label: string): Promise<Metrics> {
   await page.mouse.down()
   await page.mouse.move(box.x + 400, box.y + 200, DRAG)
   await page.mouse.up()
-  const dragP95Ms = p95(await stopSampling(page))
+  const dragFrames = await stopSampling(page)
+  const dragP95Ms = p95(dragFrames, 'drag')
 
   const scroll = await page.locator('.layout__scroll').boundingBox()
   if (!scroll) throw new Error('the layout scroll container has no box')
@@ -264,9 +305,16 @@ async function measure(page: Page, label: string): Promise<Metrics> {
   for (let i = 0; i < WHEEL.events; i++) await page.mouse.wheel(0, WHEEL.delta)
   await startSampling(page)
   for (let i = 0; i < WHEEL.events; i++) await page.mouse.wheel(0, -WHEEL.delta)
-  const zoomP95Ms = p95(await stopSampling(page))
+  const zoomFrames = await stopSampling(page)
+  const zoomP95Ms = p95(zoomFrames, 'zoom sweep')
 
-  return { zoomP95Ms, dragP95Ms, arrangeMs }
+  return {
+    zoomP95Ms,
+    dragP95Ms,
+    arrangeMs,
+    dragFrames: dragFrames.length,
+    zoomFrames: zoomFrames.length,
+  }
 }
 
 function environment(browser: Browser) {
@@ -291,7 +339,7 @@ test('records the throttled frame time baseline for the dense fixture', async ({
   await page.goto(`/#${DENSE_COMPACT}`, { timeout: LOAD_TIMEOUT_MS })
   const client = await page.context().newCDPSession(page)
 
-  const runs: Metrics[] = []
+  const runs: Run[] = []
   let label = ''
   for (let run = 0; run < RUNS; run++) {
     await openFixture(page)
@@ -304,6 +352,8 @@ test('records the throttled frame time baseline for the dense fixture', async ({
     runs.push(await measure(page, label))
   }
 
+  // `Metrics` rather than `Run`: the smallest of three sample sizes is not a
+  // property of anything, so the counts stay in the runs they were taken from.
   const best: Metrics = {
     zoomP95Ms: Math.min(...runs.map((r) => r.zoomP95Ms)),
     dragP95Ms: Math.min(...runs.map((r) => r.dragP95Ms)),

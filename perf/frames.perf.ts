@@ -295,17 +295,80 @@ async function measure(page: Page, label: string): Promise<Run> {
   await page.mouse.move(box.x + 400, box.y + 200, DRAG)
   await page.mouse.up()
   const dragFrames = await stopSampling(page)
+  // `mouse.down` and `mouse.move` dispatch whether or not anything listens, so
+  // a drag put behind a handle, a renamed tile class, a pointer capture guard
+  // or a moved listener would leave the sampler recording an idle page at 60 Hz
+  // and collapse `dragP95Ms` from ~933 ms to ~16.7 ms. Phase 12 would read a 98
+  // percent improvement, which is the one direction nobody investigates. The
+  // locator is re-read rather than the box re-used: `.first()` follows the
+  // placement map's key order, which a coordinate change does not disturb.
+  const dropped = await tile.boundingBox()
+  if (!dropped || (dropped.x === box.x && dropped.y === box.y)) {
+    throw new Error(
+      `The drag left the tile at ${box.x}, ${box.y}, so the sampled frames are ` +
+        'an idle page rather than a drag.',
+    )
+  }
   const dragP95Ms = p95(dragFrames, 'drag')
 
   const scroll = await page.locator('.layout__scroll').boundingBox()
   if (!scroll) throw new Error('the layout scroll container has no box')
+  // Nothing in the DOM renders the zoom level, but `.layout__surface` is sized
+  // `site.width * BASE_SCALE * zoom + margin` (`LayoutCanvas.tsx:840`), so its
+  // width is a faithful readout of it.
+  const surface = page.locator('.layout__surface')
+  await waitReady(surface, 'The layout canvas rendered no zoomable surface.')
+  const surfaceWidth = async (): Promise<number> => {
+    const rect = await surface.boundingBox()
+    if (!rect) throw new Error('the zoom surface has no box')
+    return rect.width
+  }
+
   await page.mouse.move(scroll.x + scroll.width / 2, scroll.y + scroll.height / 2)
+  const atRest = await surfaceWidth()
   // Out to the minimum first, unmeasured, so the measured sweep starts from a
   // known zoom. No modifier keys: the wheel handler bails on the shift key.
   for (let i = 0; i < WHEEL.events; i++) await page.mouse.wheel(0, WHEEL.delta)
+  const atMin = await surfaceWidth()
   await startSampling(page)
   for (let i = 0; i < WHEEL.events; i++) await page.mouse.wheel(0, -WHEEL.delta)
   const zoomFrames = await stopSampling(page)
+  const atMax = await surfaceWidth()
+  // Two events past the end of the measured sweep, unmeasured, to find where
+  // the 4x clamp actually is. Two rather than one because the sweep lands 0.07
+  // percent short of the clamp (60 x 30.8 x 0.0015 is 2.772, not ln(16)), so
+  // the first event still moves the zoom and only the second proves the clamp
+  // is holding. `atClamp` is then the width at 4x, measured rather than
+  // derived, which is what lets the check below be geometry free: the surface
+  // is `site.width * BASE_SCALE * zoom + margin` and neither the site nor the
+  // margin is known here.
+  await page.mouse.wheel(0, -WHEEL.delta)
+  const atClamp = await surfaceWidth()
+  await page.mouse.wheel(0, -WHEEL.delta)
+  const heldAtClamp = await surfaceWidth()
+  // The post-condition. The sweep has to shrink the surface, grow it back past
+  // where it started, and finish within one percent of the clamp, and the clamp
+  // has to hold. Nothing here reads the zoom before and after and hopes: a
+  // renamed `.layout__scroll`, a wheel listener moved to another element or a
+  // dropped `preventDefault` all make the sweep a no-op over an idle page, and
+  // an idle page at 60 Hz records 16.7 ms, which reads as a large improvement.
+  const shortOfClamp = (atClamp - atMax) / atClamp
+  if (
+    !(
+      atMin < atRest &&
+      atMax > atRest &&
+      heldAtClamp === atClamp &&
+      shortOfClamp < 0.01
+    )
+  ) {
+    throw new Error(
+      `The wheel did not sweep the zoom. The surface measured ${atRest} px at ` +
+        `rest, ${atMin} px after the sweep out, ${atMax} px after the sweep ` +
+        `in, ${atClamp} px one event later and ${heldAtClamp} px the event ` +
+        'after that. Expected it to shrink, then grow back past its resting ' +
+        'width to within one percent of a clamp that then holds.',
+    )
+  }
   const zoomP95Ms = p95(zoomFrames, 'zoom sweep')
 
   return {

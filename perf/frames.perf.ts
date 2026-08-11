@@ -23,14 +23,12 @@
  * 4. A change to either arrange button's label breaks this script, deliberately
  *    and loudly. `arrangeLabel` throws rather than recording a zero, because a
  *    zero would enter the baseline as an improvement.
- * 5. `zoomP95Ms` comes off a batched sweep, so it is a measurement of the app
- *    and is comparable to `dragP95Ms`. That is only true from gesture version 3
- *    on. Every earlier baseline was recorded with the drive awaited one event
- *    at a time, which put a driver round trip between every pair of events and
- *    pinned the number to the idle frame interval, and which was a workaround
- *    for an application defect fixed at `1419fce`. `GESTURE_VERSION` says which
- *    version means what; read it before reading a zoom number out of the
- *    baseline.
+ * 5. `zoomP95Ms` is bounded below by driver round trip latency and is not
+ *    comparable to `dragP95Ms`. The batched drive that would make it comparable
+ *    was written twice and withdrawn twice, the second time after the
+ *    application defect it first tripped had been fixed and the sweep still
+ *    arrived short. `sweep` carries both measurements and what they leave;
+ *    read it before reading a zoom number out of the baseline.
  *
  * This file is outside `tsconfig.json`'s include, matching the `scripts/`
  * precedent for node tooling, so `tsc --noEmit` never reads it and it is proven
@@ -71,10 +69,11 @@ const WHEEL = {
   events: 60,
   delta: 30.8,
   drive:
-    'all sixty dispatched as one batch, then drained to a stop before any ' +
-    'read. The same shape of load as the drag, so comparable to dragP95Ms. ' +
-    'Depends on the useCanvasZoom accumulator fix at 1419fce: before it a ' +
-    'batch applied only 45 of the 60.',
+    'one awaited driver round trip per event, then drained to a stop before ' +
+    'any read. Driver latency bound, so NOT comparable to dragP95Ms. ' +
+    'Batching all sixty is what would make it comparable, and it has been ' +
+    'tried twice and cannot deliver its full sweep: the browser appears to ' +
+    'coalesce the synthetic wheel events on the way in. See the sweep docblock.',
 }
 
 /**
@@ -86,8 +85,8 @@ const WHEEL = {
  * baseline carrying no `version` at all predates the field, which means version
  * 1, whose zoom numbers came off an unsettled sweep with nothing behind them.
  *
- * The three differ in the drive and in what is checked, and no two of them are
- * comparable to each other.
+ * Two versions have ever been recorded and they are not comparable to each
+ * other. A third was written and withdrawn, so the number is spent.
  *
  * 1. Awaited drive, one driver round trip per wheel event, and the surface read
  *    as soon as the last of them resolved. Nothing checked that the sweep had
@@ -95,27 +94,26 @@ const WHEEL = {
  *    to three digits) could as easily have been a sampler on an idle page as a
  *    measurement of one. Three runs exist at this version, the last of them at
  *    `e4b81b7`.
- * 2. Awaited drive still, deliberately, because a batch tripped an application
- *    defect and could not reach the clamp. What version 2 added is that every
- *    read is taken after the page has been waited to a stop, and that the sweep
- *    has to demonstrably reach the 4x clamp or the run fails, so the measured
- *    window spans the whole drain. The sweep is therefore proven to have
- *    happened, but its p95 is still bounded below by a round trip per event and
- *    is not a number about the app. One baseline exists at this version,
- *    `47e9467`.
- * 3. Batched drive, with version 2's settle and post-conditions unchanged.
- *    `1419fce` fixed the defect, so all sixty events apply and the zoom can be
- *    driven the same way the drag already is, as one dispatch the driver sends
- *    back to back with the main thread saturating. This is the first version
- *    whose `zoomP95Ms` measures rendering work rather than driver latency, and
- *    so the first at which it may be read beside `dragP95Ms`.
+ * 2. Awaited drive still, and the version this file is at. What version 2 added
+ *    is that every read is taken after the page has been waited to a stop, and
+ *    that the sweep has to demonstrably reach the 4x clamp or the run fails, so
+ *    the measured window spans the whole drain. The sweep is therefore proven
+ *    to have happened, but its p95 is still bounded below by a round trip per
+ *    event and is not a number about the app. One baseline exists at this
+ *    version, `47e9467`, and it is the committed one.
+ * 3. Batched drive, twice attempted and twice withdrawn, most recently at a
+ *    fixed application. Nothing was ever recorded at version 3 and nothing
+ *    should be: a batch cannot deliver its full sweep, because the browser
+ *    coalesces the synthetic wheel events on the way in and the deltas of the
+ *    merged ones do not arrive. That is a property of how this harness injects
+ *    input rather than of the application, so no change under `src/` reaches
+ *    it. `sweep` carries both measurements. Reviving a batched drive means
+ *    solving the coalescing first and calling the result version 4.
  *
- * A version 2 zoom number against a version 3 one is a measurement of the drive
- * and not of the app. `dragP95Ms` and `arrangeMs` are unaffected by any of these
- * changes but share the version, because a version per metric is a version
- * nobody checks.
+ * `dragP95Ms` and `arrangeMs` are unaffected by any of these changes but share
+ * the version, because a version per metric is a version nobody checks.
  */
-const GESTURE_VERSION = 3
+const GESTURE_VERSION = 2
 
 /** Best of three per metric, so ordinary scheduling noise cannot set the bar. */
 const RUNS = 3
@@ -264,19 +262,21 @@ const SETTLE_TIMEOUT_MS = 120_000
  * at it.
  *
  * `page.mouse.wheel` resolves when the driver has dispatched the event, not
- * when the renderer has processed it, so a batch of sixty resolves with most of
- * them still queued, and every read taken then is a read of a partial sweep.
- * The first run of the batched drive read the surface at 20 of 60 events
- * applied, and the two probe events that followed drained 16 and then 12 more
- * on their way past, each read landing on an exact integer count. `Promise.all`
- * is not the wait; this is.
+ * when the renderer has processed it, so even an awaited drive can resolve its
+ * last events with the renderer still behind, and a read taken then is a read
+ * of a partial sweep. A batch is the same fault at full volume: the first run
+ * of the batched drive read the surface at 20 of 60 events applied, and the two
+ * probe events that followed drained 16 and then 12 more on their way past,
+ * each read landing on an exact integer count. Awaiting the dispatch, however
+ * it is done, is not the wait; this is.
  *
- * It also earns its keep on an awaited drive, where the queue is short and it
- * costs a few idle frames, because a read that is correct and a read that is
- * correct by accident look identical. That is how the application defect in
- * `sweep` became legible: with the wait in place, each single-event clamp probe
- * was seen to apply exactly one event, which is what proved the sweep's missing
- * fifteen had been dropped by the app rather than left in flight.
+ * On the awaited drive this file uses, the queue is short and the wait costs a
+ * few idle frames. It is kept at that price because a read that is correct and
+ * a read that is correct by accident look identical, and because it is what
+ * makes a shortfall attributable. With the wait in place, each single-event
+ * clamp probe was seen to apply exactly 1.000 event, in both batched attempts,
+ * which is what rules the queue out and sends the missing events somewhere
+ * else. `sweep` says where each attempt sent them.
  *
  * The wait is the width holding still across `STABLE_FRAMES` consecutive
  * frames, polled inside the page so the measured window carries no driver round
@@ -334,42 +334,71 @@ async function settle(surface: Locator, gesture: string): Promise<void> {
 }
 
 /**
- * One wheel burst of `WHEEL.events`, all of them dispatched before any of them
- * is awaited, and not over until the page has applied all of it.
+ * One wheel burst of `WHEEL.events`, one awaited driver round trip per event,
+ * and not over until the page has applied all of it.
  *
- * The batch is what makes the zoom the same shape of load as the drag beside
- * it, which is a single `mouse.move(x, y, { steps: 40 })` the driver dispatches
- * back to back with the main thread saturating. Awaiting each wheel event
- * instead puts a full driver round trip between every pair of them, leaving the
- * main thread idle in the gaps, and every run ever recorded that way came out
- * at 16.7 to 16.8 ms, which is 1/60 s to three digits: a sampler catching idle
- * frames rather than a measurement of rendering work.
+ * Read `zoomP95Ms` with the following caveat or do not read it at all.
  *
- * This drive was written once before, reverted, and is back. What it collided
- * with is why `settle` and the post-condition in `measure` exist, so it is
- * worth the space. `useCanvasZoom` used to multiply a ref assigned during
- * render and hand the product to `setZoom`, which is async and batched, so
- * every event processed before React re-rendered read the same stale zoom and
- * the last write won. Measured here, with all sixty dispatched at once and
- * `settle` proving the queue drained: the sweep applied 45.000 of 60 and landed
- * at zoom 1.99910 where 3.9972 was owed. Fifteen events moved nothing. The
- * awaited drive was never immune to that, only too slow to trip it, since a
- * round trip per event left React time to re-render and the ref was fresh every
- * time. `1419fce` gave the wheel handler an accumulator it owns and writes
- * synchronously, so all sixty apply and this drive is usable.
+ * Awaiting each event puts a full driver round trip between every pair of them,
+ * so the main thread sits idle in the gaps and the sampler collects idle
+ * frames. The number is bounded below by that round trip and lands on the 60 Hz
+ * interval: every run ever recorded came out at 16.7 to 16.8 ms, which is
+ * 1/60 s to three digits, and the 124 to 126 zoom frames recorded beside them
+ * over 60 events are the arithmetic proof of the idleness. It is at least as
+ * much a measurement of the driver as of the app, and it is therefore NOT
+ * comparable to `dragP95Ms`, which comes off a single
+ * `mouse.move(x, y, { steps: 40 })` that the driver dispatches back to back
+ * with the main thread saturating. A zoom p95 is comparable only to another
+ * zoom p95 taken at the same `gesture.version`.
  *
- * The guard rails stay at full strength, and they are now the regression test
- * for that fix as well: a sweep that drops events cannot reach the 4x clamp the
- * post-condition requires, so the shortfall that was diagnosed here by hand
- * would reappear as a red run.
+ * A batched drive, all sixty dispatched before any is awaited, is what would
+ * make the comparison fair. It has been written twice and withdrawn twice, and
+ * the two attempts failed for two different reasons. Read both before writing
+ * it a third time.
  *
- * The total sweep is 1848.4 deltaY, and stays that even if Chromium coalesces
- * some of the sixty into fewer, larger events on the way in. The handler
- * applies `Math.exp(-deltaY * 0.0015)` per event and `exp` turns a sum into a
- * product, so any grouping of the same total lands on the same zoom. The number
- * of events is what the coalescing can change; the range swept is not. That was
- * never the defect above wearing a different hat: a coalesced event carries the
- * summed deltaY of the events it replaced, whereas the defect dropped theirs.
+ * The first attempt found an application defect. `useCanvasZoom` multiplied a
+ * ref assigned during render and handed the product to `setZoom`, which is
+ * async and batched, so every event processed before React re-rendered read the
+ * same stale zoom and the last write won. Measured here with `settle` proving
+ * the queue drained: 45.000 of 60 events applied, landing at zoom 1.99910 where
+ * 3.9972 was owed. Fifteen events moved nothing. The awaited drive was never
+ * immune to that, only too slow to trip it, since a round trip per event left
+ * React time to re-render and the ref was fresh every time. `1419fce` gave the
+ * handler an accumulator it owns and writes synchronously.
+ *
+ * The second attempt ran against that fixed handler and applied 49.000 of 60,
+ * failing the same post-condition. In both attempts each single-event clamp
+ * probe applied exactly 1.000 event, so `settle` was never the missing piece
+ * and the queue was fully drained at every read.
+ *
+ * What that leaves, stated as the inference it is rather than as a measurement.
+ * After `1419fce` consecutive handler invocations provably compound, so the
+ * stale ref cannot still be dropping events, which puts the residual loss
+ * upstream of the handler: the browser coalescing the synthetic CDP wheel
+ * events in its input pipeline and discarding the deltas of the ones it merges
+ * rather than summing them. That is a property of how this harness injects
+ * input, not a defect in the application, and no change under `src/` reaches
+ * it. It also refutes the assumption this docblock used to carry, that
+ * coalescing cannot change the range swept because the handler applies
+ * `Math.exp(-deltaY * 0.0015)` per event and `exp` turns a sum into a product.
+ * That holds only if a merged event carries the summed deltaY. Had it, the
+ * second attempt would have landed on the clamp. It did not.
+ *
+ * 45 and 49 are two samples taken under different conditions and not a
+ * controlled comparison, so the four event recovery between them is suggestive
+ * and not conclusive, and neither number measures the fix. `1419fce` rests on
+ * the source-level mechanism being real and the change being minimal and
+ * correct, which is an argument from reading the handler and not from either of
+ * these runs.
+ *
+ * One option is untried, and is recorded here so it is not lost. Dispatching
+ * the events from inside the page, `element.dispatchEvent(new WheelEvent(
+ * 'wheel', ...))` under `page.evaluate`, bypasses the browser's input pipeline
+ * entirely, so there is nothing left to coalesce them. The price is that it
+ * stops exercising the real input path and measures the handler and React
+ * instead of the whole input-to-paint chain, which is what the drag beside it
+ * measures. Whether that is the better measurement is a judgement and it
+ * belongs to whoever picks this up.
  */
 async function sweep(
   page: Page,
@@ -377,11 +406,9 @@ async function sweep(
   delta: number,
   gesture: string,
 ): Promise<void> {
-  const dispatched: Promise<void>[] = []
   for (let i = 0; i < WHEEL.events; i++) {
-    dispatched.push(page.mouse.wheel(0, delta))
+    await page.mouse.wheel(0, delta)
   }
-  await Promise.all(dispatched)
   await settle(surface, gesture)
 }
 

@@ -2,7 +2,7 @@
  * The GUARD-07 perf instrument: a throttled frame time baseline for the dense
  * fixture, recorded to `perf/baseline.json`.
  *
- * Four things a reader needs before changing anything here.
+ * Five things a reader needs before changing anything here.
  *
  * 1. This file is never run by `npm test` and never by CI. Its `.perf.ts`
  *    suffix matches neither vitest's default include nor Playwright's default
@@ -23,6 +23,11 @@
  * 4. A change to either arrange button's label breaks this script, deliberately
  *    and loudly. `arrangeLabel` throws rather than recording a zero, because a
  *    zero would enter the baseline as an improvement.
+ * 5. `zoomP95Ms` is bounded below by driver round trip latency and is not
+ *    comparable to `dragP95Ms`. The drive that would make it comparable trips a
+ *    defect in `useCanvasZoom` and silently throws away a quarter of the sweep.
+ *    `sweep` carries the detail and the measurement; read it before reading a
+ *    zoom number out of the baseline.
  *
  * This file is outside `tsconfig.json`'s include, matching the `scripts/`
  * precedent for node tooling, so `tsc --noEmit` never reads it and it is proven
@@ -59,7 +64,14 @@ const DRAG = { steps: 40 }
  * `drive` is how those sixty are delivered, and it is the identity too, because
  * it turned out to matter more than the count. See `sweep`.
  */
-const WHEEL = { events: 60, delta: 30.8, drive: 'one batch, drained' }
+const WHEEL = {
+  events: 60,
+  delta: 30.8,
+  drive:
+    'one awaited driver round trip per event, then drained. Driver latency ' +
+    'bound, so not comparable to dragP95Ms. Not batched only because a batch ' +
+    'trips the useCanvasZoom stale ref defect; see the sweep docblock.',
+}
 
 /**
  * The identity of the gestures this file drives, bumped when a drive changes
@@ -68,18 +80,21 @@ const WHEEL = { events: 60, delta: 30.8, drive: 'one batch, drained' }
  * Phase 12 reads this before it reads a p95: a baseline recorded at another
  * version is not comparable and wants a re-record rather than a diff. A
  * baseline carrying no `version` at all predates the field, which means version
- * 1, which means its `zoomP95Ms` is not a number about this app.
+ * 1, whose zoom numbers came off an unsettled sweep with nothing behind them.
  *
- * 1. The zoom sweep awaited one driver round trip per wheel event, so
- *    `zoomP95Ms` measured driver latency and pinned itself to 16.7 ms, the 60 Hz
- *    idle interval, in every run ever recorded.
- * 2. The sweep is one batch, matching the drag's single batched `mouse.move`,
- *    and is then waited on until the page has applied all of it. Same sixty
- *    events, same 1848.4 total deltaY, same zoom range; different load.
- *    `dragP95Ms` and `arrangeMs` are unaffected by the change but share the
- *    version, because a version per metric is a version nobody checks. No
- *    baseline has ever been recorded at version 2, so the wait is part of what
- *    version 2 means rather than a change to it.
+ * 1. The sweep awaited one driver round trip per wheel event and read the
+ *    surface as soon as the last of them resolved. Nothing checked that the
+ *    sweep had moved the zoom at all, so the 16.7 to 16.8 ms every run recorded
+ *    (1/60 s to three digits) could as easily have been a sampler on an idle
+ *    page as a measurement of one.
+ * 2. The drive is unchanged, deliberately, for the reason `sweep` sets out at
+ *    length. What changed is that every read is now taken after the page has
+ *    been waited to a stop, and that the sweep has to demonstrably reach the 4x
+ *    clamp or the run fails. The measured window spans the whole drain instead
+ *    of ending wherever the driver happened to be. `dragP95Ms` and `arrangeMs`
+ *    are unaffected but share the version, because a version per metric is a
+ *    version nobody checks. No baseline has ever been recorded at version 2, so
+ *    this is what version 2 means rather than a change to it.
  */
 const GESTURE_VERSION = 2
 
@@ -212,12 +227,16 @@ const SETTLE_TIMEOUT_MS = 120_000
  * at it.
  *
  * `page.mouse.wheel` resolves when the driver has dispatched the event, not
- * when the renderer has processed it, so a batch of sixty resolves with most of
- * them still queued. Every read taken then is a read of a partial sweep. The
- * first run of the batched drive read the surface at 20 of 60 events applied,
- * and the two probe events that followed drained 16 and then 12 more on their
- * way past, each read landing on an exact integer count. Nothing is dropped, so
- * the only thing missing is the waiting.
+ * when the renderer has processed it, so even an awaited drive can resolve its
+ * last events with the renderer still behind, and a read taken then is a read
+ * of a partial sweep. On this drive the queue is short and the wait costs a few
+ * idle frames.
+ *
+ * It is kept at that price because a read that is correct and a read that is
+ * correct by accident look identical, and because this is the wait that made
+ * the app defect in `sweep` legible. With it, each single-event clamp probe was
+ * seen to apply exactly one event, which is what proved the sweep's missing
+ * fifteen had been dropped by the app rather than left in flight.
  *
  * The wait is the width holding still across `STABLE_FRAMES` consecutive
  * frames, polled inside the page so the measured window carries no driver round
@@ -275,31 +294,48 @@ async function settle(surface: Locator, gesture: string): Promise<void> {
 }
 
 /**
- * One wheel burst of `WHEEL.events`, issued as a batch rather than as that many
- * awaited round trips, and not over until the page has applied all of it.
+ * One wheel burst of `WHEEL.events`, one awaited driver round trip per event,
+ * and not over until the page has applied all of it.
  *
- * The drag it sits beside is a single `mouse.move(x, y, { steps: 40 })`: one
- * call from here, and the driver dispatches all forty back to back with the
- * main thread saturating. Awaiting each wheel event put a full driver round
- * trip between every pair of them instead, leaving the main thread idle in the
- * gaps, and that structural difference and not the app is the likeliest reason
- * `zoomP95Ms` came out 55x smaller than `dragP95Ms`. All three recorded runs
- * landed on 16.7 to 16.8 ms, which is 1/60 s to three digits: the signature of
- * a sampler catching idle frames rather than a measurement of rendering work.
- * Issuing all sixty before awaiting any of them makes the zoom the same shape
- * of load as the drag, which is what `zoomP95Ms` claims to be.
+ * Read `zoomP95Ms` with the following caveat or do not read it at all.
  *
- * The total sweep is unchanged at 1848.4 deltaY, and stays unchanged even if
- * Chromium coalesces some of the sixty into fewer, larger events on the way in.
- * The handler applies `Math.exp(-deltaY * 0.0015)` per event and `exp` turns a
- * sum into a product, so any grouping of the same total lands on the same zoom.
- * The number of events is what the coalescing can change; the range swept is
- * not.
+ * Awaiting each event puts a full driver round trip between every pair of them,
+ * so the main thread sits idle in the gaps and the sampler collects idle
+ * frames. The number is bounded below by that round trip and lands near the
+ * 60 Hz interval: all three runs ever recorded, all at version 1, came out at
+ * 16.7 to 16.8 ms, which is 1/60 s to three digits. It is at least as much a
+ * measurement of the driver as of the app, and it is therefore NOT comparable
+ * to `dragP95Ms`, which comes off a single `mouse.move(x, y, { steps: 40 })`
+ * that the driver dispatches back to back with the main thread saturating. The
+ * two sit in the same JSON and measure different things, and the ~55x gap
+ * between them is that difference rather than a finding about zooming. A zoom
+ * p95 is comparable only to another zoom p95 taken at the same
+ * `gesture.version`.
  *
- * Batching is what made the settle necessary. The awaited drive read a zoom
- * that had nothing left to catch up on, at the price of measuring the driver
- * rather than the app; the batch measures the app, but only if the read waits
- * for it. `Promise.all` is not that wait, `settle` is.
+ * A batched drive is what would make the comparison fair, and it was tried. It
+ * cannot be used, for a reason in the app rather than in this script.
+ * `useCanvasZoom.ts:29-30` assigns `zoomRef.current = zoom` during render, and
+ * the wheel handler at `useCanvasZoom.ts:94-95` reads that ref, multiplies it
+ * by `Math.exp(-deltaY * 0.0015)` and hands the product to `setZoom`, which is
+ * async and batched. Every event processed before React re-renders reads the
+ * same stale ref and the last write wins, so each group of events sharing a
+ * render collapses into one event's worth of zoom. Measured, with all sixty
+ * dispatched at once and `settle` proving the queue drained: the sweep applied
+ * 45.000 of 60 and landed at zoom 1.99910 where 3.9972 was owed. Fifteen events
+ * moved nothing. The awaited drive is not immune so much as too slow to trip
+ * it, since a round trip per event leaves React time to re-render and the ref
+ * is fresh every time. A drive that measures the driver but sweeps the whole
+ * range beats a drive that measures the app but cannot reach the clamp, so this
+ * one stays until the defect is fixed. It is recorded in
+ * `.planning/codebase/CONCERNS.md` under Known Bugs.
+ *
+ * The total sweep is 1848.4 deltaY, and stays that even if Chromium coalesces
+ * some of the sixty into fewer, larger events on the way in. The handler
+ * applies `Math.exp(-deltaY * 0.0015)` per event and `exp` turns a sum into a
+ * product, so any grouping of the same total lands on the same zoom. The number
+ * of events is what the coalescing can change; the range swept is not. That is
+ * not the defect above wearing a different hat: a coalesced event carries the
+ * summed deltaY of the events it replaced, whereas the defect drops theirs.
  */
 async function sweep(
   page: Page,
@@ -307,11 +343,9 @@ async function sweep(
   delta: number,
   gesture: string,
 ): Promise<void> {
-  const dispatched: Promise<void>[] = []
   for (let i = 0; i < WHEEL.events; i++) {
-    dispatched.push(page.mouse.wheel(0, delta))
+    await page.mouse.wheel(0, delta)
   }
-  await Promise.all(dispatched)
   await settle(surface, gesture)
 }
 

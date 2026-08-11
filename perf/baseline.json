@@ -1,17 +1,4 @@
 {
-  "stale": [
-    "Every number in this file was recorded by gesture version 1, before CR-04.",
-    "The zoom sweep was 60 awaited driver round trips with the main thread idle",
-    "between them, so zoomP95Ms measured driver latency and landed on 16.7 ms in",
-    "all three runs, which is 1/60 s to three digits. It is not a number about",
-    "this app and must not be compared against one. dragP95Ms and arrangeMs were",
-    "measured honestly but predate the drag and zoom post-conditions and the",
-    "MIN_SAMPLES floor, so nothing here proves the gestures ran or that a p95 was",
-    "computed from enough frames. The absence of gesture.version is the",
-    "machine-readable half of this: the fixed script writes version 2.",
-    "Re-record with `npm run perf`. The script rewrites this file whole and this",
-    "key goes with it. No number below has been hand edited."
-  ],
   "environment": {
     "playwright": "1.62.1",
     "chromium": "151.0.7922.34",
@@ -23,35 +10,43 @@
     },
     "cpuThrottlingRate": 4
   },
-  "recordedAt": "2026-08-10T17:56:17.297Z",
+  "recordedAt": "2026-08-11T16:40:33.898Z",
   "fixture": "dense-compact",
   "gesture": {
+    "version": 2,
     "wheelEvents": 60,
     "wheelDelta": 30.8,
+    "wheelDrive": "one awaited driver round trip per event, then drained. Driver latency bound, so not comparable to dragP95Ms. Not batched only because a batch trips the useCanvasZoom stale ref defect; see the sweep docblock.",
     "dragSteps": 40,
     "arrangeButton": "This floor"
   },
   "runs": [
     {
-      "zoomP95Ms": 16.80000000000291,
-      "dragP95Ms": 933.2999999999993,
-      "arrangeMs": 8256.100000023842
+      "zoomP95Ms": 16.700000000004366,
+      "dragP95Ms": 900,
+      "arrangeMs": 7663.599999964237,
+      "dragFrames": 87,
+      "zoomFrames": 126
     },
     {
       "zoomP95Ms": 16.700000000004366,
-      "dragP95Ms": 983.2999999999993,
-      "arrangeMs": 8084.400000035763
+      "dragP95Ms": 966.6000000000022,
+      "arrangeMs": 7701.299999952316,
+      "dragFrames": 95,
+      "zoomFrames": 124
     },
     {
-      "zoomP95Ms": 16.700000000004366,
-      "dragP95Ms": 950,
-      "arrangeMs": 7709.599999964237
+      "zoomP95Ms": 16.799999999995634,
+      "dragP95Ms": 933.3000000000029,
+      "arrangeMs": 8414.300000011921,
+      "dragFrames": 94,
+      "zoomFrames": 125
     }
   ],
   "best": {
     "zoomP95Ms": 16.700000000004366,
-    "dragP95Ms": 933.2999999999993,
-    "arrangeMs": 7709.599999964237
+    "dragP95Ms": 900,
+    "arrangeMs": 7663.599999964237
   },
   "gate": {
     "maxRegressionPct": 20

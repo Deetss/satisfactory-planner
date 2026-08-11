@@ -1,4 +1,17 @@
 {
+  "stale": [
+    "Every number in this file was recorded by gesture version 1, before CR-04.",
+    "The zoom sweep was 60 awaited driver round trips with the main thread idle",
+    "between them, so zoomP95Ms measured driver latency and landed on 16.7 ms in",
+    "all three runs, which is 1/60 s to three digits. It is not a number about",
+    "this app and must not be compared against one. dragP95Ms and arrangeMs were",
+    "measured honestly but predate the drag and zoom post-conditions and the",
+    "MIN_SAMPLES floor, so nothing here proves the gestures ran or that a p95 was",
+    "computed from enough frames. The absence of gesture.version is the",
+    "machine-readable half of this: the fixed script writes version 2.",
+    "Re-record with `npm run perf`. The script rewrites this file whole and this",
+    "key goes with it. No number below has been hand edited."
+  ],
   "environment": {
     "playwright": "1.62.1",
     "chromium": "151.0.7922.34",

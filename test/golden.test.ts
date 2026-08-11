@@ -44,6 +44,17 @@ import type { Golden } from './golden/round'
  * was written by the same code that reads it can only ever say the code agrees
  * with itself. Two independent readings of the pipeline mean a change made on
  * one side and not the other shows up as a red test.
+ *
+ * Reading a red run. This suite gates the Pages deploy, because
+ * `.github/workflows/deploy.yml` runs `npm test` before `npm run build`, and
+ * red arrives here in three shapes that want three different responses:
+ *
+ * - A `toEqual` diff against a golden means the engine changed its answers.
+ *   That is a finding. Do not run `npm run goldens` to make it green.
+ * - A `status`, `warnings`, `overflow` or placement count assertion means the
+ *   fixture or the solver moved, upstream of the arrangement.
+ * - `Test timed out in ...` means the runner stalled, not the engine. See
+ *   `ARRANGE_TIMEOUT_MS`. Re-run it before opening `LayoutCanvas.tsx`.
  */
 
 /**
@@ -65,6 +76,34 @@ const fromFragment = (fragment: string): string => {
   )
 }
 
+/**
+ * The budget for one golden, against vitest's 5 s default.
+ *
+ * Each of these tests is a real HiGHS solve and a real arrangement, and the
+ * dense one runs a whole candidate tournament: 2037 ms measured locally, which
+ * is 41 percent of the default. `tools/regen-goldens.ts` budgets 300 s for the
+ * same work. Since `npm test` gates the Pages deploy on a shared 2-core runner,
+ * where a 2.5x slowdown is ordinary, the default would take the deploy down and
+ * the failure would read as a golden diff.
+ *
+ * 60 s is 30x the slowest of the three, which is what makes a timeout legible:
+ * no engine change worth calling a regression is 30x, so a red run of this
+ * shape is the runner and not the packer. The same budget goes on all three,
+ * both because the other two are 33 ms and 6 ms so it costs nothing, and
+ * because three tests failing on one number is easier to read than three
+ * numbers. A change that genuinely approaches this budget is worth catching
+ * rather than absorbing, so raise it only with a reason written down.
+ */
+const ARRANGE_TIMEOUT_MS = 60_000
+
+/**
+ * The WASM load, against vitest's 10 s `hookTimeout` default. Same reasoning as
+ * `ARRANGE_TIMEOUT_MS` and the same failure mode: this hook runs once and every
+ * test in the file depends on it, so a slow runner here fails all three at
+ * once and looks nothing like a golden diff.
+ */
+const HIGHS_LOAD_TIMEOUT_MS = 60_000
+
 type Highs = Awaited<ReturnType<typeof highsLoader>>
 let highs: Highs
 
@@ -74,7 +113,7 @@ beforeAll(async () => {
   // a served URL where node needs a path it can open. Same bootstrap as
   // `test/solver.test.ts`.
   highs = await highsLoader()
-})
+}, HIGHS_LOAD_TIMEOUT_MS)
 
 /**
  * Solves whatever is currently in the planner store, through the app's own
@@ -330,7 +369,7 @@ test('the dense compact floor still arranges to its committed golden', () => {
   // packByStage holds none of it, so this is the golden guarding the column
   // packer. See docs/golden-fixtures.md for the full candidate table.
   expect(observe(modules, modulesById, routes)).toEqual(denseGolden)
-})
+}, ARRANGE_TIMEOUT_MS)
 
 test('the multi floor stack still arranges to its committed golden', () => {
   // Versatile Framework, Smart Plating and Motor over three 14 by 14 production
@@ -358,7 +397,7 @@ test('the multi floor stack still arranges to its committed golden', () => {
   // Read out of the store rather than off the return value, because arrangeStack
   // commits a second time through alignLifts after applyArrangement.
   expect(observe(modules, modulesById, routes)).toEqual(multiGolden)
-})
+}, ARRANGE_TIMEOUT_MS)
 
 test('the bus corridor still arranges to its committed golden', () => {
   // Reinforced Iron Plate and Rotor at 10 a minute each, six blocks, laid along
@@ -386,4 +425,4 @@ test('the bus corridor still arranges to its committed golden', () => {
   expect(Object.keys(useLayoutStore.getState().placements).length).toBe(6)
 
   expect(observe(modules, modulesById, routes)).toEqual(busGolden)
-})
+}, ARRANGE_TIMEOUT_MS)

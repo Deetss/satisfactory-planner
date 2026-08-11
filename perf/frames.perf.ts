@@ -59,7 +59,7 @@ const DRAG = { steps: 40 }
  * `drive` is how those sixty are delivered, and it is the identity too, because
  * it turned out to matter more than the count. See `sweep`.
  */
-const WHEEL = { events: 60, delta: 30.8, drive: 'one batch, unawaited' }
+const WHEEL = { events: 60, delta: 30.8, drive: 'one batch, drained' }
 
 /**
  * The identity of the gestures this file drives, bumped when a drive changes
@@ -73,10 +73,13 @@ const WHEEL = { events: 60, delta: 30.8, drive: 'one batch, unawaited' }
  * 1. The zoom sweep awaited one driver round trip per wheel event, so
  *    `zoomP95Ms` measured driver latency and pinned itself to 16.7 ms, the 60 Hz
  *    idle interval, in every run ever recorded.
- * 2. The sweep is one batch, matching the drag's single batched `mouse.move`.
- *    Same sixty events, same 1848.4 total deltaY, same zoom range; different
- *    load. `dragP95Ms` and `arrangeMs` are unaffected by the change but share
- *    the version, because a version per metric is a version nobody checks.
+ * 2. The sweep is one batch, matching the drag's single batched `mouse.move`,
+ *    and is then waited on until the page has applied all of it. Same sixty
+ *    events, same 1848.4 total deltaY, same zoom range; different load.
+ *    `dragP95Ms` and `arrangeMs` are unaffected by the change but share the
+ *    version, because a version per metric is a version nobody checks. No
+ *    baseline has ever been recorded at version 2, so the wait is part of what
+ *    version 2 means rather than a change to it.
  */
 const GESTURE_VERSION = 2
 
@@ -184,8 +187,96 @@ async function stopSampling(page: Page): Promise<number[]> {
 }
 
 /**
+ * How many consecutive animation frames the surface has to hold one width
+ * before the drain is called finished.
+ *
+ * One would not do. A frame can pass with none of the queued events applied,
+ * and calling that settled is the same early read in a slower disguise. Three
+ * costs three idle frames at the tail of the zoom sample, which sort to the
+ * bottom, so the p95 still comes off the drain.
+ */
+const STABLE_FRAMES = 3
+
+/**
+ * The budget for one drain.
+ *
+ * Generous, because the drain is the thing being measured: sixty wheel events,
+ * each a full canvas re-render, at a 4x CPU throttle. Bounded anyway, because
+ * an unbounded wait on a page that has stopped producing frames is the fifteen
+ * minute test timeout, which names nothing.
+ */
+const SETTLE_TIMEOUT_MS = 120_000
+
+/**
+ * Wait until the page has finished applying the wheel events already dispatched
+ * at it.
+ *
+ * `page.mouse.wheel` resolves when the driver has dispatched the event, not
+ * when the renderer has processed it, so a batch of sixty resolves with most of
+ * them still queued. Every read taken then is a read of a partial sweep. The
+ * first run of the batched drive read the surface at 20 of 60 events applied,
+ * and the two probe events that followed drained 16 and then 12 more on their
+ * way past, each read landing on an exact integer count. Nothing is dropped, so
+ * the only thing missing is the waiting.
+ *
+ * The wait is the width holding still across `STABLE_FRAMES` consecutive
+ * frames, polled inside the page so the measured window carries no driver round
+ * trips. `getBoundingClientRect` in a rAF callback moves the frame's layout
+ * earlier rather than adding one: queued input is applied ahead of rAF, so that
+ * layout was already owed.
+ *
+ * It proves a drained queue only while the events still move the surface. That
+ * holds for the whole measured sweep in, which multiplies the zoom by
+ * exp(2.772) and so lands 0.07 percent short of the 16x the clamps allow,
+ * leaving not one of its sixty events a no-op. The sweep out saturates at the
+ * 0.25 clamp after thirty, so its settle proves the clamp was reached and
+ * leaves the remaining thirty free to still be queued. Those are applied at the
+ * head of the measured window and cost next to nothing there: `setZoom` to the
+ * zoom the state already holds bails out instead of re-rendering.
+ */
+async function settle(surface: Locator, gesture: string): Promise<void> {
+  const outcome = await surface.evaluate(
+    (el, { timeoutMs, stableFrames }) =>
+      new Promise<{ settled: boolean; width: number; frames: number }>((resolve) => {
+        let width = el.getBoundingClientRect().width
+        let frames = 0
+        let stable = 0
+        let done = false
+        let backstop = 0
+        const finish = (settled: boolean) => {
+          done = true
+          clearTimeout(backstop)
+          resolve({ settled, width, frames })
+        }
+        // rAF is the clock, so a deadline checked only inside it is no bound at
+        // all on a page that has stopped producing frames.
+        backstop = window.setTimeout(() => finish(false), timeoutMs)
+        const tick = () => {
+          if (done) return
+          frames++
+          const next = el.getBoundingClientRect().width
+          stable = next === width ? stable + 1 : 0
+          width = next
+          if (stable >= stableFrames) finish(true)
+          else requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+      }),
+    { timeoutMs: SETTLE_TIMEOUT_MS, stableFrames: STABLE_FRAMES },
+  )
+  if (!outcome.settled) {
+    throw new Error(
+      `The ${gesture} never stopped moving the zoom. The surface was ` +
+        `${outcome.width} px and still changing after ${outcome.frames} frames ` +
+        `and ${SETTLE_TIMEOUT_MS} ms. Everything measured past this point would ` +
+        'be a sweep that is still running.',
+    )
+  }
+}
+
+/**
  * One wheel burst of `WHEEL.events`, issued as a batch rather than as that many
- * awaited round trips.
+ * awaited round trips, and not over until the page has applied all of it.
  *
  * The drag it sits beside is a single `mouse.move(x, y, { steps: 40 })`: one
  * call from here, and the driver dispatches all forty back to back with the
@@ -204,13 +295,24 @@ async function stopSampling(page: Page): Promise<number[]> {
  * sum into a product, so any grouping of the same total lands on the same zoom.
  * The number of events is what the coalescing can change; the range swept is
  * not.
+ *
+ * Batching is what made the settle necessary. The awaited drive read a zoom
+ * that had nothing left to catch up on, at the price of measuring the driver
+ * rather than the app; the batch measures the app, but only if the read waits
+ * for it. `Promise.all` is not that wait, `settle` is.
  */
-async function sweep(page: Page, delta: number): Promise<void> {
+async function sweep(
+  page: Page,
+  surface: Locator,
+  delta: number,
+  gesture: string,
+): Promise<void> {
   const dispatched: Promise<void>[] = []
   for (let i = 0; i < WHEEL.events; i++) {
     dispatched.push(page.mouse.wheel(0, delta))
   }
   await Promise.all(dispatched)
+  await settle(surface, gesture)
 }
 
 /**
@@ -380,10 +482,13 @@ async function measure(page: Page, label: string): Promise<Run> {
   const atRest = await surfaceWidth()
   // Out to the minimum first, unmeasured, so the measured sweep starts from a
   // known zoom. No modifier keys: the wheel handler bails on the shift key.
-  await sweep(page, WHEEL.delta)
+  await sweep(page, surface, WHEEL.delta, 'zoom sweep out')
   const atMin = await surfaceWidth()
   await startSampling(page)
-  await sweep(page, -WHEEL.delta)
+  await sweep(page, surface, -WHEEL.delta, 'zoom sweep in')
+  // Stopped after the sweep has settled, so the sample spans the whole drain.
+  // Stopped before it, `zoomP95Ms` is a percentile over whichever fraction of
+  // the sixty events the renderer happened to have reached.
   const zoomFrames = await stopSampling(page)
   const atMax = await surfaceWidth()
   // Two events past the end of the measured sweep, unmeasured, to find where
@@ -393,10 +498,16 @@ async function measure(page: Page, label: string): Promise<Run> {
   // is holding. `atClamp` is then the width at 4x, measured rather than
   // derived, which is what lets the check below be geometry free: the surface
   // is `site.width * BASE_SCALE * zoom + margin` and neither the site nor the
-  // margin is known here.
+  // margin is known here. Both are settled for, and the second settle is the
+  // one worth arguing about: a held clamp moves nothing, so it waits on a
+  // surface that was never going to change. That is what makes it worth doing.
+  // Without it the read lands before the event does, and a clamp that had
+  // stopped holding would sail past unread.
   await page.mouse.wheel(0, -WHEEL.delta)
+  await settle(surface, 'first clamp probe')
   const atClamp = await surfaceWidth()
   await page.mouse.wheel(0, -WHEEL.delta)
+  await settle(surface, 'second clamp probe')
   const heldAtClamp = await surfaceWidth()
   // The post-condition. The sweep has to shrink the surface, grow it back past
   // where it started, and finish within one percent of the clamp, and the clamp

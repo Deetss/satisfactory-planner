@@ -26,6 +26,16 @@ export function useCanvasZoom<Surface extends Element = HTMLDivElement>({
 
   // The listeners read this instead of the state, so they never need zoom as a
   // dependency: re-subscribing mid-gesture would drop the pinch it was tracking.
+  //
+  // The wheel handler also writes it, and that second job is the load-bearing
+  // one. `setZoom` is async and batched, so a flick can deliver its whole burst
+  // before React re-renders; every event in that burst would otherwise compound
+  // from the same committed zoom and the last one would win, losing the rest.
+  // The assignment below is still right for the renders it does see: after a
+  // wheel burst it re-adopts the value the handler already accumulated, and
+  // after a button or a pinch it adopts the value those produced.
+  // `perf/frames.perf.ts` is the regression guard, since its batched sixty
+  // event sweep can only reach the 4x clamp while the accumulation holds.
   const zoomRef = useRef(zoom)
   zoomRef.current = zoom
 
@@ -92,7 +102,12 @@ export function useCanvasZoom<Surface extends Element = HTMLDivElement>({
       if (event.shiftKey) return
       event.preventDefault()
       const factor = Math.exp(-event.deltaY * 0.0015)
-      zoomAt(zoomRef.current * factor, event.clientX, event.clientY)
+      // Clamped before it is banked, not only on the way into zoomAt: an
+      // accumulator allowed past the bounds keeps climbing while the view is
+      // pinned, and scrolling back then does nothing until it has unwound.
+      const next = clamp(zoomRef.current * factor)
+      zoomRef.current = next
+      zoomAt(next, event.clientX, event.clientY)
     }
 
     const spread = (touches: TouchList) => {
@@ -191,7 +206,7 @@ export function useCanvasZoom<Surface extends Element = HTMLDivElement>({
       window.removeEventListener('pointerup', endPan)
       window.removeEventListener('pointercancel', endPan)
     }
-  }, [zoomAt, onPinchStart])
+  }, [zoomAt, clamp, onPinchStart])
 
   return {
     zoom,

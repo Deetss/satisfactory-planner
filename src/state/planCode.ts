@@ -424,7 +424,7 @@ export function decodePlanCode(text: string): PlanFile {
     role: (floor?.[6] === 1 ? 'storage' : 'production') as FloorRole,
   }))
 
-  const placements: Record<string, Placement> = {}
+  const placements: Record<string, Placement> = Object.create(null)
   for (const entry of Array.isArray(code.P) ? code.P : []) {
     if (typeof entry?.[0] !== 'string') continue
     const moduleId = unpackModule(entry[0])
